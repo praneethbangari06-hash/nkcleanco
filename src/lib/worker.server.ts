@@ -116,11 +116,14 @@ const AREA_COORDS: Record<string, { lat: number; lng: number }> = {
 };
 
 export function distanceKm(
-  area: string,
+  destination: { area: string; lat?: number | null; lng?: number | null },
   lat: number | null | undefined,
   lng: number | null | undefined,
 ): number | null {
-  const target = AREA_COORDS[area];
+  const target =
+    destination.lat != null && destination.lng != null
+      ? { lat: destination.lat, lng: destination.lng }
+      : AREA_COORDS[destination.area];
   if (!target || lat == null || lng == null) return null;
   const R = 6371;
   const dLat = ((target.lat - lat) * Math.PI) / 180;

@@ -34,7 +34,7 @@ export const bookingTracking = createServerFn({ method: "POST" })
 
     const { data: booking } = await supabaseAdmin
       .from("bookings")
-      .select("id, status, area, assigned_worker_id, offered_worker_ids")
+      .select("id, status, area, customer_lat, customer_lng, assigned_worker_id, offered_worker_ids")
       .eq("reference", data.reference)
       .eq("phone", data.phone)
       .maybeSingle();
@@ -71,6 +71,8 @@ export const bookingTracking = createServerFn({ method: "POST" })
     return {
       status: fresh?.status ?? booking.status,
       area: booking.area,
+      customer_lat: booking.customer_lat,
+      customer_lng: booking.customer_lng,
       worker_name: workerName,
       worker_lat: workerLat,
       worker_lng: workerLng,

@@ -91,7 +91,9 @@ export const workerJobRequest = createServerFn({ method: "POST" })
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
-      .select("id, area, service_type, booking_date, time_slot, price_min, price_max")
+      .select(
+        "id, area, customer_lat, customer_lng, service_type, booking_date, time_slot, price_min, price_max",
+      )
       .eq("assigned_worker_id", worker.id)
       .eq("status", "pending")
       .order("created_at", { ascending: true })
@@ -102,7 +104,11 @@ export const workerJobRequest = createServerFn({ method: "POST" })
 
     return {
       ...booking,
-      distance_km: distanceKm(booking.area, me?.current_lat, me?.current_lng),
+      distance_km: distanceKm(
+        { area: booking.area, lat: booking.customer_lat, lng: booking.customer_lng },
+        me?.current_lat,
+        me?.current_lng,
+      ),
     };
   });
 
@@ -177,7 +183,7 @@ export const workerActiveJob = createServerFn({ method: "POST" })
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .select(
-        "id, reference, customer_name, phone, address, area, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at",
+        "id, reference, customer_name, phone, address, area, customer_lat, customer_lng, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at",
       )
       .eq("assigned_worker_id", worker.id)
       .in("status", ["assigned", "arrived", "in_progress"])
@@ -200,7 +206,7 @@ export const workerJob = createServerFn({ method: "POST" })
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .select(
-        "id, reference, customer_name, phone, address, area, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at",
+        "id, reference, customer_name, phone, address, area, customer_lat, customer_lng, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at",
       )
       .eq("id", data.id)
       .eq("assigned_worker_id", worker.id)

@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { requestAutoAssignment } from "@/lib/booking.functions";
+import { geocodeAddress } from "@/lib/geocode.functions";
 import {
   CONFIRMATION_KEY,
   SERVICES,
@@ -68,6 +69,7 @@ export function BookingWizard({ initialService }: { initialService?: string | un
   const [areaChoice, setAreaChoice] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   const service = getService(draft.serviceType);
   const minDate = todayIso();
@@ -122,6 +124,20 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     const data = parsed.data;
     const picked = getService(data.serviceType)!;
 
+    setSubmitting(true);
+    setLocating(true);
+
+    // Geocode the exact typed address so tracking + distance use the real location.
+    let point: { lat: number; lng: number } | null = null;
+    try {
+      point = await geocodeAddress({
+        data: { flat: data.flat, street: data.street, area: data.area },
+      });
+    } catch {
+      point = null;
+    }
+    setLocating(false);
+
     const record = {
       reference: newReference(),
       customer_name: data.name,
@@ -134,9 +150,10 @@ export function BookingWizard({ initialService }: { initialService?: string | un
       notes: data.notes ?? null,
       price_min: picked.priceMin,
       price_max: picked.priceMax,
+      customer_lat: point?.lat ?? null,
+      customer_lng: point?.lng ?? null,
     };
 
-    setSubmitting(true);
     const { error } = await supabase.from("bookings").insert(record);
     setSubmitting(false);
 
@@ -437,7 +454,7 @@ export function BookingWizard({ initialService }: { initialService?: string | un
               {submitting ? (
                 <>
                   <Loader2 className="size-5 animate-spin" />
-                  Confirming…
+                  {locating ? "Pinpointing your address…" : "Confirming…"}
                 </>
               ) : (
                 <>
