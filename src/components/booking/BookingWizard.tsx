@@ -106,9 +106,10 @@ export function BookingWizard({ initialService }: { initialService?: string | un
             setResolved(info.display);
             setDraft((prev) => ({
               ...prev,
-              flat: prev.flat?.trim() ? prev.flat : info.flat || prev.flat,
-              street: prev.street?.trim() ? prev.street : info.street,
+              flat: prev.flat?.trim() ? prev.flat : info.flat || prev.flat || "",
+              street: prev.street?.trim() ? prev.street : info.street || "",
             }));
+
             setErrors({});
           }
         } catch {
