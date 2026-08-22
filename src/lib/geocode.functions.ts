@@ -68,3 +68,44 @@ export const geocodeAddress = createServerFn({ method: "POST" })
 
     return null;
   });
+
+const reverseSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+});
+
+/** Turns GPS coordinates into a readable address using Nominatim reverse lookup. */
+export const reverseGeocode = createServerFn({ method: "POST" })
+  .inputValidator((data) => reverseSchema.parse(data))
+  .handler(async ({ data }) => {
+    try {
+      const url =
+        "https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&addressdetails=1" +
+        `&lat=${data.lat}&lon=${data.lng}`;
+      const res = await fetch(url, {
+        headers: { "User-Agent": "NKCleanCo/1.0 (booking geocoder)", Accept: "application/json" },
+      });
+      if (!res.ok) return null;
+      const json = (await res.json()) as {
+        display_name?: string;
+        address?: Record<string, string>;
+      };
+      const a = json.address ?? {};
+      const house = [a["house_number"], a["house_name"], a["building"]]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+      const street = [a["road"], a["neighbourhood"], a["suburb"]]
+        .filter(Boolean)
+        .join(", ")
+        .trim();
+      return {
+        display: json.display_name ?? "",
+        flat: house,
+        street: street || (json.display_name ?? "").split(",").slice(0, 2).join(",").trim(),
+        suburb: a["suburb"] ?? a["neighbourhood"] ?? "",
+      };
+    } catch {
+      return null;
+    }
+  });

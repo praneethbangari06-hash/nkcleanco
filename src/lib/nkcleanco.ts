@@ -218,3 +218,37 @@ export function newReference() {
   for (const byte of bytes) out += REF_ALPHABET[byte % REF_ALPHABET.length];
   return `NK-${out}`;
 }
+
+/**
+ * Cleans a typed address before geocoding: collapses whitespace/commas and
+ * drops consecutively repeated words or phrases people often duplicate.
+ */
+export function cleanAddressText(input: string): string {
+  const collapsed = input
+    .replace(/\s+/g, " ")
+    .replace(/\s*,\s*/g, ", ")
+    .replace(/(,\s*)+/g, ", ")
+    .trim()
+    .replace(/^,\s*|,\s*$/g, "");
+
+  const parts = collapsed
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const seen = new Set<string>();
+  const uniqueParts = parts.filter((p) => {
+    const key = p.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return uniqueParts
+    .map((part) => {
+      const words = part.split(" ");
+      return words
+        .filter((w, i) => i === 0 || w.toLowerCase() !== (words[i - 1] ?? "").toLowerCase())
+        .join(" ");
+    })
+    .join(", ");
+}

@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { ClientOnly, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,9 +9,11 @@ import {
   CheckCircle2,
   Clock,
   CookingPot,
+  Crosshair,
   Home,
   Info,
   Loader2,
+  Map as MapIcon,
   MapPin,
   Phone,
   Sofa,
@@ -19,7 +21,7 @@ import {
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,13 +30,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { requestAutoAssignment } from "@/lib/booking.functions";
-import { geocodeAddress } from "@/lib/geocode.functions";
+import { geocodeAddress, reverseGeocode } from "@/lib/geocode.functions";
 import {
+  AREA_COORDS,
   CONFIRMATION_KEY,
   SERVICES,
   SERVICE_AREAS,
   TIME_SLOTS,
   bookingSchema,
+  cleanAddressText,
   getService,
   inr,
   newReference,
@@ -44,6 +48,8 @@ import {
   type BookingInput,
   type ServiceId,
 } from "@/lib/nkcleanco";
+
+const PinPickerMap = lazy(() => import("@/components/booking/PinPickerMap"));
 
 const ICONS: Record<ServiceId, LucideIcon> = {
   home: Home,
@@ -57,6 +63,7 @@ const ICONS: Record<ServiceId, LucideIcon> = {
 const STEPS = ["Service", "Address", "Date & time", "Contact", "Review"];
 
 type Draft = Partial<BookingInput>;
+type Point = { lat: number; lng: number };
 
 const OTHER_AREA = "__other__";
 
@@ -70,6 +77,55 @@ export function BookingWizard({ initialService }: { initialService?: string | un
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [locating, setLocating] = useState(false);
+
+  /** Exact coordinates captured from GPS or the map pin (wins over typed text). */
+  const [point, setPoint] = useState<Point | null>(null);
+  const [source, setSource] = useState<"gps" | "map" | null>(null);
+  const [gpsBusy, setGpsBusy] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [resolved, setResolved] = useState<string>("");
+
+  const mapCenter: Point =
+    point ?? AREA_COORDS[draft.area ?? ""] ?? AREA_COORDS["Narsingi"] ?? { lat: 17.3894, lng: 78.3517 };
+
+  const useMyLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      toast.error("Your browser doesn't support location. Please pick on the map instead.");
+      return;
+    }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setPoint(next);
+        setSource("gps");
+        setShowMap(false);
+        try {
+          const info = await reverseGeocode({ data: next });
+          if (info) {
+            setResolved(info.display);
+            setDraft((prev) => ({
+              ...prev,
+              flat: prev.flat?.trim() ? prev.flat : info.flat || prev.flat || "",
+              street: prev.street?.trim() ? prev.street : info.street || "",
+            }));
+
+            setErrors({});
+          }
+        } catch {
+          /* keep GPS coords even if the address lookup fails */
+        }
+        setGpsBusy(false);
+        toast.success("Location captured");
+      },
+      () => {
+        setGpsBusy(false);
+        toast.error("We couldn't get your location. Allow location access or pick on the map.");
+      },
+      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 0 },
+    );
+  };
+
 
   const service = getService(draft.serviceType);
   const minDate = todayIso();
@@ -125,18 +181,25 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     const picked = getService(data.serviceType)!;
 
     setSubmitting(true);
-    setLocating(true);
 
-    // Geocode the exact typed address so tracking + distance use the real location.
-    let point: { lat: number; lng: number } | null = null;
-    try {
-      point = await geocodeAddress({
-        data: { flat: data.flat, street: data.street, area: data.area },
-      });
-    } catch {
-      point = null;
+    // GPS / map pin coordinates always win; typed text is only a fallback.
+    let coords: Point | null = point;
+    if (!coords) {
+      setLocating(true);
+      try {
+        coords = await geocodeAddress({
+          data: {
+            flat: cleanAddressText(data.flat),
+            street: cleanAddressText(data.street),
+            area: data.area,
+          },
+        });
+      } catch {
+        coords = null;
+      }
+      setLocating(false);
     }
-    setLocating(false);
+
 
     const record = {
       reference: newReference(),
@@ -150,8 +213,9 @@ export function BookingWizard({ initialService }: { initialService?: string | un
       notes: data.notes ?? null,
       price_min: picked.priceMin,
       price_max: picked.priceMax,
-      customer_lat: point?.lat ?? null,
-      customer_lng: point?.lng ?? null,
+      customer_lat: coords?.lat ?? null,
+      customer_lng: coords?.lng ?? null,
+
     };
 
     const { error } = await supabase.from("bookings").insert(record);
@@ -225,8 +289,108 @@ export function BookingWizard({ initialService }: { initialService?: string | un
         )}
 
         {step === 1 && (
-          <StepBlock title="Where should we come?" hint="We only serve three areas right now.">
-            <div className="grid gap-4">
+          <StepBlock
+            title="Where should we come?"
+            hint="Set your exact location — this is what our cleaner navigates to."
+          >
+            <div className="grid gap-3">
+              <button
+                type="button"
+                onClick={useMyLocation}
+                disabled={gpsBusy}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-smooth active:scale-[0.99] ${
+                  source === "gps"
+                    ? "border-primary bg-primary-soft shadow-glow"
+                    : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card"
+                }`}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground">
+                  {gpsBusy ? (
+                    <Loader2 className="size-5 animate-spin" />
+                  ) : (
+                    <Crosshair className="size-5" />
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold text-ink">
+                    {gpsBusy ? "Getting your location…" : "Use my current location"}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Most accurate — uses your phone&apos;s GPS
+                  </span>
+                </span>
+                {source === "gps" && <Check className="ml-auto size-5 shrink-0 text-primary" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowMap((v) => !v)}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-smooth active:scale-[0.99] ${
+                  source === "map"
+                    ? "border-primary bg-primary-soft shadow-glow"
+                    : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card"
+                }`}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                  <MapIcon className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold text-ink">Pick on map</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Booking for an office or a relative&apos;s home? Drop a pin.
+                  </span>
+                </span>
+                {source === "map" && <Check className="ml-auto size-5 shrink-0 text-primary" />}
+              </button>
+
+              {showMap && (
+                <div>
+                  <ClientOnly
+                    fallback={
+                      <div className="h-[240px] w-full animate-pulse rounded-2xl bg-muted" />
+                    }
+                  >
+                    <Suspense
+                      fallback={
+                        <div className="h-[240px] w-full animate-pulse rounded-2xl bg-muted" />
+                      }
+                    >
+                      <PinPickerMap
+                        center={mapCenter}
+                        value={point}
+                        onChange={(p) => {
+                          setPoint(p);
+                          setSource("map");
+                          setResolved("");
+                        }}
+                      />
+                    </Suspense>
+                  </ClientOnly>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Tap the map or drag the pin to the exact spot.
+                  </p>
+                </div>
+              )}
+
+              {point && (
+                <p className="flex gap-2 rounded-2xl border border-mint/40 bg-mint-soft p-3.5 text-xs font-semibold text-mint">
+                  <MapPin className="mt-0.5 size-4 shrink-0" />
+                  <span className="min-w-0">
+                    Exact location saved ({point.lat.toFixed(5)}, {point.lng.toFixed(5)})
+                    {resolved && (
+                      <span className="mt-1 block font-medium normal-case text-muted-foreground">
+                        {resolved}
+                      </span>
+                    )}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-4 border-t border-border pt-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {point ? "Address details for the cleaner" : "Or type your address"}
+              </p>
               <div>
                 <Label htmlFor="flat">House / flat number</Label>
                 <Input
@@ -252,7 +416,13 @@ export function BookingWizard({ initialService }: { initialService?: string | un
                   className="mt-1.5 h-12"
                 />
                 <FieldError message={errors["street"]} />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {point
+                    ? "Text edits help the cleaner find your door — your saved pin stays unchanged."
+                    : "Typed addresses are less accurate. For best results use “My location” or “Pick on map” above."}
+                </p>
               </div>
+
 
               <div>
                 <Label htmlFor="area">Area</Label>
