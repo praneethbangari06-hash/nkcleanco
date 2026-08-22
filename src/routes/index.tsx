@@ -8,9 +8,9 @@ import { Testimonials } from "@/components/landing/Testimonials";
 import { WhyUs } from "@/components/landing/WhyUs";
 import { PageShell } from "@/components/site/PageShell";
 
-const title = "NK CleanCo — Home Cleaning in Narsingi, Kokapet & Kanapur";
+const title = "NK CleanCo — Professional Home Cleaning in Narsingi, Kokapet, Kanapur";
 const description =
-  "Book verified, trained home cleaners in Narsingi, Kokapet and Kanapur, Hyderabad. Deep cleaning, bathroom, kitchen, sofa and office cleaning from ₹599. Same-day slots.";
+  "Book trusted, verified home cleaning services in Narsingi, Kokapet, and Kanapur with NK CleanCo. Fast booking, professional cleaners, on-time service.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

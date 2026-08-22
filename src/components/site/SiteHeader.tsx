@@ -19,7 +19,7 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
       </span>
       {!compact && (
         <span className="font-display text-lg font-bold tracking-tight text-ink">
-          Clean<span className="text-primary">Connect</span>
+          NK <span className="text-primary">CleanCo</span>
         </span>
       )}
     </span>
