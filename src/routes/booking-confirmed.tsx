@@ -240,6 +240,8 @@ function statusLabel(status: string) {
 
 function TrackingCard({ reference, phone }: { reference: string; phone: string }) {
   const [state, setState] = useState<TrackingState | null>(null);
+  const [roadKm, setRoadKm] = useState<number | null>(null);
+
 
   useEffect(() => {
     let cancelled = false;
