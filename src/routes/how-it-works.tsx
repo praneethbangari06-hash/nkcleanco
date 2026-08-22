@@ -7,7 +7,7 @@ import { PageHeading, PageShell } from "@/components/site/PageShell";
 
 const title = "How NK CleanCo Works — Book, Assign, Clean, Rate";
 const description =
-  "See how an NK CleanCo booking works: pick a service and slot, we assign a verified cleaner, confirm by phone in 30 minutes, and clean on time.;
+  "See how an NK CleanCo booking works: pick a service and slot, we assign a verified cleaner, confirm by phone in 30 minutes, and clean on time.";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
