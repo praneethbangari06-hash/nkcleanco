@@ -106,7 +106,7 @@ export function SiteFooter() {
               Staff login
             </Link>
             <Link to="/admin/login" className="transition-smooth hover:text-primary">
-              Team login
+              Admin login
             </Link>
           </div>
         </div>

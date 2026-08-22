@@ -12,7 +12,9 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { BookingChat } from "@/components/chat/BookingChat";
 import { PageShell } from "@/components/site/PageShell";
+import { sendCustomerMessage } from "@/lib/chat.functions";
 import { bookingTracking } from "@/lib/booking.functions";
 import { Button } from "@/components/ui/button";
 import {
@@ -222,6 +224,7 @@ interface TrackingState {
   area: string;
   customer_lat: number | null;
   customer_lng: number | null;
+  booking_id: string;
   worker_name: string | null;
   worker_lat: number | null;
   worker_lng: number | null;
@@ -307,6 +310,7 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
   }
 
   return (
+    <>
     <div
       className={`rounded-3xl border p-5 shadow-card ${
         assigned ? "border-mint/40 bg-mint/10" : "border-border bg-card"
@@ -360,6 +364,19 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
         </div>
       )}
     </div>
+
+    {assigned && (
+      <div className="mt-5">
+        <BookingChat
+          bookingId={state.booking_id}
+          sender="customer"
+          locked={false}
+          peerLabel={state.worker_name ?? "your cleaner"}
+          onSend={(text) => sendCustomerMessage({ data: { reference, phone, text } })}
+        />
+      </div>
+    )}
+    </>
   );
 }
 

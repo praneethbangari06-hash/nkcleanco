@@ -32,6 +32,7 @@ export type Database = {
           phone: string
           price_max: number
           price_min: number
+          rating: number | null
           reference: string
           service_type: string
           status: Database["public"]["Enums"]["booking_status"]
@@ -54,6 +55,7 @@ export type Database = {
           phone: string
           price_max?: number
           price_min?: number
+          rating?: number | null
           reference?: string
           service_type: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -76,6 +78,7 @@ export type Database = {
           phone?: string
           price_max?: number
           price_min?: number
+          rating?: number | null
           reference?: string
           service_type?: string
           status?: Database["public"]["Enums"]["booking_status"]
@@ -87,6 +90,38 @@ export type Database = {
             columns: ["assigned_worker_id"]
             isOneToOne: false
             referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          message_text: string
+          sender_type: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          message_text: string
+          sender_type: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          message_text?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]

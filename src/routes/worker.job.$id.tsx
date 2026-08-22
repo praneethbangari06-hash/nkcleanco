@@ -14,7 +14,9 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { BookingChat } from "@/components/chat/BookingChat";
 import { WorkerShell } from "@/components/worker/WorkerShell";
+import { sendWorkerMessage } from "@/lib/chat.functions";
 import { Button } from "@/components/ui/button";
 import { AREA_COORDS, getService, haversineKm, prettyDate, slotLabel } from "@/lib/nkcleanco";
 import { JOB_STAGES, NEXT_ACTION, requestGeolocation, useWorkerToken } from "@/lib/worker-client";
@@ -245,6 +247,20 @@ function WorkerJobPage() {
           })}
         </ol>
       </section>
+
+      {booking.status !== "pending" && (
+        <div className="mt-4">
+          <BookingChat
+            bookingId={booking.id}
+            sender="worker"
+            locked={booking.status === "completed" || booking.status === "cancelled"}
+            peerLabel={booking.customer_name}
+            onSend={(text) =>
+              sendWorkerMessage({ data: { token: token as string, bookingId: booking.id, text } })
+            }
+          />
+        </div>
+      )}
 
       {action ? (
         <Button

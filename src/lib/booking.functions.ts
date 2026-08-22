@@ -69,6 +69,7 @@ export const bookingTracking = createServerFn({ method: "POST" })
     }
 
     return {
+      booking_id: booking.id,
       status: fresh?.status ?? booking.status,
       area: booking.area,
       customer_lat: booking.customer_lat,
