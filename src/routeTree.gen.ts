@@ -18,6 +18,7 @@ import { Route as ServiceAreasRouteImport } from './routes/service-areas'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as WorkerLoginRouteImport } from './routes/worker.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
@@ -67,6 +68,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkerLoginRoute = WorkerLoginRouteImport.update({
+  id: '/worker/login',
+  path: '/worker/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/workers': typeof AuthenticatedAdminWorkersRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/service-areas': typeof ServiceAreasRoute
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/workers': typeof AuthenticatedAdminWorkersRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/worker/login': typeof WorkerLoginRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/workers': typeof AuthenticatedAdminWorkersRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin'
     | '/admin/login'
+    | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/workers'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/service-areas'
     | '/services'
     | '/admin/login'
+    | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/workers'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/_authenticated/admin'
     | '/admin/login'
+    | '/worker/login'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/workers'
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   ServiceAreasRoute: typeof ServiceAreasRoute
   ServicesRoute: typeof ServicesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  WorkerLoginRoute: typeof WorkerLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/worker/login': {
+      id: '/worker/login'
+      path: '/worker/login'
+      fullPath: '/worker/login'
+      preLoaderRoute: typeof WorkerLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -326,6 +346,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServiceAreasRoute: ServiceAreasRoute,
   ServicesRoute: ServicesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  WorkerLoginRoute: WorkerLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
