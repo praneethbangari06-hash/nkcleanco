@@ -181,18 +181,25 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     const picked = getService(data.serviceType)!;
 
     setSubmitting(true);
-    setLocating(true);
 
-    // Geocode the exact typed address so tracking + distance use the real location.
-    let point: { lat: number; lng: number } | null = null;
-    try {
-      point = await geocodeAddress({
-        data: { flat: data.flat, street: data.street, area: data.area },
-      });
-    } catch {
-      point = null;
+    // GPS / map pin coordinates always win; typed text is only a fallback.
+    let coords: Point | null = point;
+    if (!coords) {
+      setLocating(true);
+      try {
+        coords = await geocodeAddress({
+          data: {
+            flat: cleanAddressText(data.flat),
+            street: cleanAddressText(data.street),
+            area: data.area,
+          },
+        });
+      } catch {
+        coords = null;
+      }
+      setLocating(false);
     }
-    setLocating(false);
+
 
     const record = {
       reference: newReference(),
