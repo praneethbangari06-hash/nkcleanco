@@ -69,6 +69,7 @@ export function BookingWizard({ initialService }: { initialService?: string | un
   const [areaChoice, setAreaChoice] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   const service = getService(draft.serviceType);
   const minDate = todayIso();
