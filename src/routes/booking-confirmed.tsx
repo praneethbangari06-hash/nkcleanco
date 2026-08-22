@@ -222,6 +222,7 @@ interface TrackingState {
   area: string;
   customer_lat: number | null;
   customer_lng: number | null;
+  booking_id: string;
   worker_name: string | null;
   worker_lat: number | null;
   worker_lng: number | null;
