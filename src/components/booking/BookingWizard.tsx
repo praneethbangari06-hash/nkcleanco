@@ -125,6 +125,7 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     const picked = getService(data.serviceType)!;
 
     setSubmitting(true);
+    setLocating(true);
 
     // Geocode the exact typed address so tracking + distance use the real location.
     let point: { lat: number; lng: number } | null = null;
@@ -135,6 +136,7 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     } catch {
       point = null;
     }
+    setLocating(false);
 
     const record = {
       reference: newReference(),
