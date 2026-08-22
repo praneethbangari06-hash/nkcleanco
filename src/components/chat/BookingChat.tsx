@@ -45,36 +45,21 @@ export function BookingChat({
     let cancelled = false;
 
     const load = async () => {
-      const { data } = await supabase
-        .from("messages")
-        .select("id, sender_type, message_text, created_at")
-        .eq("booking_id", bookingId)
-        .order("created_at", { ascending: true });
-      if (!cancelled) setMessages((data ?? []) as ChatMessage[]);
+      try {
+        const rows = await fetchMessages();
+        if (!cancelled) setMessages(rows);
+      } catch {
+        /* keep the last known thread */
+      }
     };
     void load();
-
-    const channel = supabase
-      .channel(`messages-${bookingId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `booking_id=eq.${bookingId}`,
-        },
-        (payload) => {
-          const row = payload.new as ChatMessage;
-          setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
-        },
-      )
-      .subscribe();
+    const timer = setInterval(load, 5_000);
 
     return () => {
       cancelled = true;
-      void supabase.removeChannel(channel);
+      clearInterval(timer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingId]);
 
   useEffect(() => {
