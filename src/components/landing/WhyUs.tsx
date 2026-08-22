@@ -28,7 +28,7 @@ export function WhyUs() {
     <section className="bg-background py-16 sm:py-24">
       <div className="section-shell grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Why CleanConnect</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Why NK CleanCo</p>
           <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">
             A cleaning service you can actually rely on
           </h2>

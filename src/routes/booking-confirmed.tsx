@@ -12,11 +12,11 @@ import {
   prettyDate,
   slotLabel,
   type ConfirmedBooking,
-} from "@/lib/cleanconnect";
+} from "@/lib/nkcleanco";
 
-const title = "Booking Confirmed — CleanConnect";
+const title = "Booking Confirmed — NK CleanCo";
 const description =
-  "Your CleanConnect cleaning is booked. Our team will call you within 30 minutes to confirm the slot and assign a verified cleaner.";
+  "Your NK CleanCo cleaning is booked. Our team will call you within 30 minutes to confirm the slot and assign a verified cleaner.";
 
 export const Route = createFileRoute("/booking-confirmed")({
   ssr: false,

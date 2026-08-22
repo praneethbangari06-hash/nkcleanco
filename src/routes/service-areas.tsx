@@ -4,11 +4,11 @@ import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { CtaBand } from "@/components/landing/CtaBand";
 import { PageHeading, PageShell } from "@/components/site/PageShell";
 import { Button } from "@/components/ui/button";
-import { SERVICE_AREAS } from "@/lib/cleanconnect";
+import { SERVICE_AREAS } from "@/lib/nkcleanco";
 
-const title = "Service Areas — Narsingi, Kokapet & Kanapur | CleanConnect";
+const title = "Service Areas — Narsingi, Kokapet & Kanapur | NK CleanCo";
 const description =
-  "CleanConnect serves Narsingi, Kokapet and Kanapur in west Hyderabad with same-day home cleaning slots. Expanding to Manikonda and Gandipet soon.";
+  "NK CleanCo serves Narsingi, Kokapet and Kanapur in west Hyderabad with same-day home cleaning slots. Expanding to Manikonda and Gandipet soon.";
 
 const AREA_DETAIL: Record<string, { blurb: string; landmarks: string }> = {
   Narsingi: {

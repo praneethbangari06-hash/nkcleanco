@@ -3,7 +3,7 @@ import { Menu, Phone, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { BRAND } from "@/lib/cleanconnect";
+import { BRAND } from "@/lib/nkcleanco";
 
 const NAV = [
   { label: "Services", to: "/services" },

@@ -20,8 +20,8 @@ export const Route = createFileRoute("/admin/login")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Team Login — CleanConnect Admin" },
-      { name: "description", content: "CleanConnect staff sign-in for managing bookings." },
+      { title: "Team Login — NK CleanCo Admin" },
+      { name: "description", content: "NK CleanCo staff sign-in for managing bookings." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -110,7 +110,7 @@ function AdminLogin() {
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "signin"
               ? "Sign in to manage bookings and assign cleaners."
-              : "Set up the first admin account for your CleanConnect dashboard."}
+              : "Set up the first admin account for your NK CleanCo dashboard."}
           </p>
 
           <form onSubmit={submit} className="mt-7 space-y-4">
@@ -123,7 +123,7 @@ function AdminLogin() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                placeholder="you@cleanconnect.in"
+                placeholder="you@nkcleanco.in"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1.5 h-12"

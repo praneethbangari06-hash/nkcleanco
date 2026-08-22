@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BookingsTable } from "@/components/admin/BookingsTable";
 
 export const Route = createFileRoute("/_authenticated/admin/bookings")({
-  head: () => ({ meta: [{ title: "Bookings — CleanConnect Admin" }] }),
+  head: () => ({ meta: [{ title: "Bookings — NK CleanCo Admin" }] }),
   component: BookingsPage,
 });
 
