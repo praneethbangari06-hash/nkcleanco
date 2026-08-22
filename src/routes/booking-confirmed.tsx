@@ -275,7 +275,11 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
       ? "All our cleaners are currently busy, we'll notify you shortly"
       : "Finding a cleaner near you…";
 
-  const customer = AREA_COORDS[state.area] ?? null;
+  // Exact geocoded address when we have it; area centre only as a fallback.
+  const customer =
+    state.customer_lat != null && state.customer_lng != null
+      ? { lat: state.customer_lat, lng: state.customer_lng }
+      : (AREA_COORDS[state.area] ?? null);
   const updatedAt = state.location_updated_at ? Date.parse(state.location_updated_at) : NaN;
   const fresh =
     state.worker_lat != null &&
