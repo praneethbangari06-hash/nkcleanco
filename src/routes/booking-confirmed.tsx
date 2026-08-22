@@ -220,6 +220,8 @@ function Row({
 interface TrackingState {
   status: string;
   area: string;
+  customer_lat: number | null;
+  customer_lng: number | null;
   worker_name: string | null;
   worker_lat: number | null;
   worker_lng: number | null;
