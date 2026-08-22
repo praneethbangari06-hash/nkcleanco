@@ -16,12 +16,15 @@ export const workerLogin = createServerFn({ method: "POST" })
 
     const { data: worker } = await supabaseAdmin
       .from("workers")
-      .select("id, name, phone, is_online, status, password_hash")
+      .select("id, name, phone, is_online, is_active, status, password_hash")
       .eq("phone", data.phone)
       .maybeSingle();
 
     if (!worker || !(await verifyPassword(data.password, worker.password_hash))) {
       throw new Error("Phone number or password is incorrect.");
+    }
+    if (worker.is_active === false) {
+      throw new Error("This account has been deactivated. Please contact the office.");
     }
 
     return {

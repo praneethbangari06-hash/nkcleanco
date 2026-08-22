@@ -153,6 +153,7 @@ export type Database = {
           current_lat: number | null
           current_lng: number | null
           id: string
+          is_active: boolean
           is_online: boolean
           last_location_update: string | null
           name: string
@@ -165,6 +166,7 @@ export type Database = {
           current_lat?: number | null
           current_lng?: number | null
           id?: string
+          is_active?: boolean
           is_online?: boolean
           last_location_update?: string | null
           name: string
@@ -177,6 +179,7 @@ export type Database = {
           current_lat?: number | null
           current_lng?: number | null
           id?: string
+          is_active?: boolean
           is_online?: boolean
           last_location_update?: string | null
           name?: string

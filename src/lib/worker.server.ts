@@ -99,11 +99,12 @@ export async function requireWorker(token: string): Promise<WorkerProfile> {
   const workerId = await workerIdFromToken(token);
   const { data, error } = await supabaseAdmin
     .from("workers")
-    .select("id, name, phone, is_online, status")
+    .select("id, name, phone, is_online, is_active, status")
     .eq("id", workerId)
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Unauthorized");
+  if ((data as { is_active?: boolean }).is_active === false) throw new Error("Unauthorized");
   return data as WorkerProfile;
 }
 
