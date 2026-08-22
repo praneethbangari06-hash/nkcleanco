@@ -24,6 +24,7 @@ export type Database = {
           customer_name: string
           id: string
           notes: string | null
+          offer_cycle_at: string | null
           offered_at: string | null
           offered_worker_ids: string[]
           phone: string
@@ -43,6 +44,7 @@ export type Database = {
           customer_name: string
           id?: string
           notes?: string | null
+          offer_cycle_at?: string | null
           offered_at?: string | null
           offered_worker_ids?: string[]
           phone: string
@@ -62,6 +64,7 @@ export type Database = {
           customer_name?: string
           id?: string
           notes?: string | null
+          offer_cycle_at?: string | null
           offered_at?: string | null
           offered_worker_ids?: string[]
           phone?: string
