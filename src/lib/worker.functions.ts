@@ -103,6 +103,34 @@ export const workerJobRequest = createServerFn({ method: "POST" })
     };
   });
 
+/** Periodic GPS ping while the worker is online. */
+export const updateWorkerLocation = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z
+      .object({
+        token: z.string().min(1),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { requireWorker } = await import("./worker.server");
+    const worker = await requireWorker(data.token);
+
+    const { error } = await supabaseAdmin
+      .from("workers")
+      .update({
+        current_lat: data.lat,
+        current_lng: data.lng,
+        last_location_update: new Date().toISOString(),
+      })
+      .eq("id", worker.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const respondToJobRequest = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
@@ -118,22 +146,22 @@ export const respondToJobRequest = createServerFn({ method: "POST" })
     const { requireWorker } = await import("./worker.server");
     const worker = await requireWorker(data.token);
 
-    const patch = data.accept
-      ? { status: "assigned" as const }
-      : { status: "pending" as const, assigned_worker_id: null };
+    if (!data.accept) {
+      const { declineAndReassign } = await import("./assignment.server");
+      await declineAndReassign(data.bookingId, worker.id);
+      return { accepted: false };
+    }
 
     const { error } = await supabaseAdmin
       .from("bookings")
-      .update(patch)
+      .update({ status: "assigned" as const })
       .eq("id", data.bookingId)
       .eq("assigned_worker_id", worker.id)
       .eq("status", "pending");
     if (error) throw new Error(error.message);
 
-    if (data.accept) {
-      await supabaseAdmin.from("workers").update({ status: "on_job" }).eq("id", worker.id);
-    }
-    return { accepted: data.accept };
+    await supabaseAdmin.from("workers").update({ status: "on_job" }).eq("id", worker.id);
+    return { accepted: true };
   });
 
 export const workerActiveJob = createServerFn({ method: "POST" })
