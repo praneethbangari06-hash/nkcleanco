@@ -125,7 +125,10 @@ function WorkerJobPage() {
   const action = NEXT_ACTION[booking.status];
   const currentIndex = JOB_STAGES.findIndex((s) => s.status === booking.status);
   const ActionIcon = action ? ACTION_ICON[action.next] : CheckCircle2;
-  const customerPoint = AREA_COORDS[booking.area] ?? null;
+  const customerPoint =
+    booking.customer_lat != null && booking.customer_lng != null
+      ? { lat: booking.customer_lat, lng: booking.customer_lng }
+      : (AREA_COORDS[booking.area] ?? null);
   const straightKm = customerPoint && myPos ? haversineKm(customerPoint, myPos) : null;
   const distance = roadKm ?? straightKm;
   const stageLabel =
