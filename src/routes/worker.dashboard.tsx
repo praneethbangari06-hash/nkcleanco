@@ -21,6 +21,7 @@ import { requestGeolocation, useWorkerToken } from "@/lib/worker-client";
 import {
   respondToJobRequest,
   setWorkerOnline,
+  updateWorkerLocation,
   workerJobRequest,
   workerMe,
 } from "@/lib/worker.functions";
