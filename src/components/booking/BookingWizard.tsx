@@ -120,33 +120,30 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     const data = parsed.data;
     const picked = getService(data.serviceType)!;
 
+    const record = {
+      reference: newReference(),
+      customer_name: data.name,
+      phone: data.phone,
+      address: `${data.flat}, ${data.street}`,
+      area: data.area,
+      service_type: picked.name,
+      booking_date: data.date,
+      time_slot: data.slot,
+      notes: data.notes ?? null,
+      price_min: picked.priceMin,
+      price_max: picked.priceMax,
+    };
+
     setSubmitting(true);
-    const { data: inserted, error } = await supabase
-      .from("bookings")
-      .insert({
-        customer_name: data.name,
-        phone: data.phone,
-        address: `${data.flat}, ${data.street}`,
-        area: data.area,
-        service_type: picked.name,
-        booking_date: data.date,
-        time_slot: data.slot,
-        notes: data.notes ?? null,
-        price_min: picked.priceMin,
-        price_max: picked.priceMax,
-      })
-      .select(
-        "reference, customer_name, phone, address, area, service_type, booking_date, time_slot, price_min, price_max",
-      )
-      .single();
+    const { error } = await supabase.from("bookings").insert(record);
     setSubmitting(false);
 
-    if (error || !inserted) {
+    if (error) {
       toast.error("We couldn't save your booking. Please try again or call us.");
       return;
     }
 
-    sessionStorage.setItem(CONFIRMATION_KEY, JSON.stringify(inserted));
+    sessionStorage.setItem(CONFIRMATION_KEY, JSON.stringify(record));
     navigate({ to: "/booking-confirmed" });
   };
 
