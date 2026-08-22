@@ -11,6 +11,27 @@ export const BRAND = {
 export const SERVICE_AREAS = ["Narsingi", "Kokapet", "Kanapur"] as const;
 export type ServiceArea = (typeof SERVICE_AREAS)[number];
 
+/** Approximate centre point for each serviced area (used for map + distance display). */
+export const AREA_COORDS: Record<string, { lat: number; lng: number }> = {
+  Narsingi: { lat: 17.3894, lng: 78.3517 },
+  Kokapet: { lat: 17.399, lng: 78.34 },
+  Kanapur: { lat: 17.3612, lng: 78.3305 },
+};
+
+export function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(h)) * 10) / 10;
+}
+
+
 export type ServiceId =
   | "home"
   | "deep"
