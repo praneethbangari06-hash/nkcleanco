@@ -144,6 +144,11 @@ export function BookingWizard({ initialService }: { initialService?: string | un
       return;
     }
 
+    // Kick off automatic assignment to the nearest online cleaner.
+    void requestAutoAssignment({
+      data: { reference: record.reference, phone: record.phone },
+    }).catch(() => undefined);
+
     sessionStorage.setItem(CONFIRMATION_KEY, JSON.stringify(record));
     navigate({ to: "/booking-confirmed" });
   };
