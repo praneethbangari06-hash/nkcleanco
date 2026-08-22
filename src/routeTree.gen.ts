@@ -18,6 +18,7 @@ import { Route as ServiceAreasRouteImport } from './routes/service-areas'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as WorkerDashboardRouteImport } from './routes/worker.dashboard'
 import { Route as WorkerLoginRouteImport } from './routes/worker.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
@@ -68,6 +69,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkerDashboardRoute = WorkerDashboardRouteImport.update({
+  id: '/worker/dashboard',
+  path: '/worker/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkerLoginRoute = WorkerLoginRouteImport.update({
   id: '/worker/login',
   path: '/worker/login',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/worker/dashboard': typeof WorkerDashboardRoute
   '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/service-areas': typeof ServiceAreasRoute
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/worker/dashboard': typeof WorkerDashboardRoute
   '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/worker/dashboard': typeof WorkerDashboardRoute
   '/worker/login': typeof WorkerLoginRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin'
     | '/admin/login'
+    | '/worker/dashboard'
     | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/service-areas'
     | '/services'
     | '/admin/login'
+    | '/worker/dashboard'
     | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/_authenticated/admin'
     | '/admin/login'
+    | '/worker/dashboard'
     | '/worker/login'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/dashboard'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   ServiceAreasRoute: typeof ServiceAreasRoute
   ServicesRoute: typeof ServicesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  WorkerDashboardRoute: typeof WorkerDashboardRoute
   WorkerLoginRoute: typeof WorkerLoginRoute
 }
 
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/worker/dashboard': {
+      id: '/worker/dashboard'
+      path: '/worker/dashboard'
+      fullPath: '/worker/dashboard'
+      preLoaderRoute: typeof WorkerDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/worker/login': {
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServiceAreasRoute: ServiceAreasRoute,
   ServicesRoute: ServicesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  WorkerDashboardRoute: WorkerDashboardRoute,
   WorkerLoginRoute: WorkerLoginRoute,
 }
 export const routeTree = rootRouteImport
