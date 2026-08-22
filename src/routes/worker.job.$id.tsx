@@ -246,6 +246,20 @@ function WorkerJobPage() {
         </ol>
       </section>
 
+      {booking.status !== "pending" && (
+        <div className="mt-4">
+          <BookingChat
+            bookingId={booking.id}
+            sender="worker"
+            locked={booking.status === "completed" || booking.status === "cancelled"}
+            peerLabel={booking.customer_name}
+            onSend={(text) =>
+              sendWorkerMessage({ data: { token: token as string, bookingId: booking.id, text } })
+            }
+          />
+        </div>
+      )}
+
       {action ? (
         <Button
           variant="hero"
