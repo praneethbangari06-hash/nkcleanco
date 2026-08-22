@@ -80,6 +80,9 @@ export const workerJobRequest = createServerFn({ method: "POST" })
     const { requireWorker, distanceKm } = await import("./worker.server");
     const worker = await requireWorker(data.token);
 
+    // Roll any 60s-unanswered offers onward before we look for this worker's request.
+    await supabaseAdmin.rpc("rotate_stale_offers");
+
     const { data: me } = await supabaseAdmin
       .from("workers")
       .select("current_lat, current_lng")

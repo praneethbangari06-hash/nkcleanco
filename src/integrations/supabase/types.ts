@@ -24,6 +24,7 @@ export type Database = {
           customer_name: string
           id: string
           notes: string | null
+          offer_cycle_at: string | null
           offered_at: string | null
           offered_worker_ids: string[]
           phone: string
@@ -43,6 +44,7 @@ export type Database = {
           customer_name: string
           id?: string
           notes?: string | null
+          offer_cycle_at?: string | null
           offered_at?: string | null
           offered_worker_ids?: string[]
           phone: string
@@ -62,6 +64,7 @@ export type Database = {
           customer_name?: string
           id?: string
           notes?: string | null
+          offer_cycle_at?: string | null
           offered_at?: string | null
           offered_worker_ids?: string[]
           phone?: string
@@ -147,6 +150,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_nearest_worker: { Args: { _booking_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -154,6 +158,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      rotate_stale_offers: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "staff" | "user"
