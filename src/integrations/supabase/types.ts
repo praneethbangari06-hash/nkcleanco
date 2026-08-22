@@ -21,6 +21,8 @@ export type Database = {
           assigned_worker_id: string | null
           booking_date: string
           created_at: string
+          customer_lat: number | null
+          customer_lng: number | null
           customer_name: string
           id: string
           notes: string | null
@@ -41,6 +43,8 @@ export type Database = {
           assigned_worker_id?: string | null
           booking_date: string
           created_at?: string
+          customer_lat?: number | null
+          customer_lng?: number | null
           customer_name: string
           id?: string
           notes?: string | null
@@ -61,6 +65,8 @@ export type Database = {
           assigned_worker_id?: string | null
           booking_date?: string
           created_at?: string
+          customer_lat?: number | null
+          customer_lng?: number | null
           customer_name?: string
           id?: string
           notes?: string | null
