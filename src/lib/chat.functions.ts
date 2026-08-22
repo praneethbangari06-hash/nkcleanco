@@ -72,3 +72,58 @@ export const sendWorkerMessage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const messageShape = "id, sender_type, message_text, created_at";
+
+export const fetchCustomerMessages = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z
+      .object({
+        reference: z.string().trim().min(4).max(32),
+        phone: z.string().trim().regex(/^[6-9]\d{9}$/),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: booking } = await supabaseAdmin
+      .from("bookings")
+      .select("id")
+      .eq("reference", data.reference.toUpperCase())
+      .eq("phone", data.phone)
+      .maybeSingle();
+    if (!booking) return [];
+
+    const { data: rows } = await supabaseAdmin
+      .from("messages")
+      .select(messageShape)
+      .eq("booking_id", booking.id)
+      .order("created_at", { ascending: true });
+    return rows ?? [];
+  });
+
+export const fetchWorkerMessages = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z.object({ token: z.string().min(1), bookingId: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { requireWorker } = await import("./worker.server");
+    const worker = await requireWorker(data.token);
+
+    const { data: booking } = await supabaseAdmin
+      .from("bookings")
+      .select("id")
+      .eq("id", data.bookingId)
+      .eq("assigned_worker_id", worker.id)
+      .maybeSingle();
+    if (!booking) return [];
+
+    const { data: rows } = await supabaseAdmin
+      .from("messages")
+      .select(messageShape)
+      .eq("booking_id", booking.id)
+      .order("created_at", { ascending: true });
+    return rows ?? [];
+  });
