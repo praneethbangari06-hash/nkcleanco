@@ -18,10 +18,14 @@ import { Route as ServiceAreasRouteImport } from './routes/service-areas'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as WorkerDashboardRouteImport } from './routes/worker.dashboard'
+import { Route as WorkerHistoryRouteImport } from './routes/worker.history'
+import { Route as WorkerLoginRouteImport } from './routes/worker.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin/dashboard'
 import { Route as AuthenticatedAdminWorkersRouteImport } from './routes/_authenticated/admin/workers'
+import { Route as WorkerJobIdRouteImport } from './routes/worker.job.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -67,6 +71,21 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkerDashboardRoute = WorkerDashboardRouteImport.update({
+  id: '/worker/dashboard',
+  path: '/worker/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkerHistoryRoute = WorkerHistoryRouteImport.update({
+  id: '/worker/history',
+  path: '/worker/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkerLoginRoute = WorkerLoginRouteImport.update({
+  id: '/worker/login',
+  path: '/worker/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -90,6 +109,11 @@ const AuthenticatedAdminWorkersRoute =
     path: '/workers',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const WorkerJobIdRoute = WorkerJobIdRouteImport.update({
+  id: '/worker/job/$id',
+  path: '/worker/job/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -100,9 +124,13 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/worker/dashboard': typeof WorkerDashboardRoute
+  '/worker/history': typeof WorkerHistoryRoute
+  '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/worker/job/$id': typeof WorkerJobIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -113,9 +141,13 @@ export interface FileRoutesByTo {
   '/service-areas': typeof ServiceAreasRoute
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/worker/dashboard': typeof WorkerDashboardRoute
+  '/worker/history': typeof WorkerHistoryRoute
+  '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/worker/job/$id': typeof WorkerJobIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -129,9 +161,13 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/worker/dashboard': typeof WorkerDashboardRoute
+  '/worker/history': typeof WorkerHistoryRoute
+  '/worker/login': typeof WorkerLoginRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/workers': typeof AuthenticatedAdminWorkersRoute
+  '/worker/job/$id': typeof WorkerJobIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -145,9 +181,13 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin'
     | '/admin/login'
+    | '/worker/dashboard'
+    | '/worker/history'
+    | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/workers'
+    | '/worker/job/$id'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -158,9 +198,13 @@ export interface FileRouteTypes {
     | '/service-areas'
     | '/services'
     | '/admin/login'
+    | '/worker/dashboard'
+    | '/worker/history'
+    | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
     | '/admin/workers'
+    | '/worker/job/$id'
     | '/admin'
   id:
     | '__root__'
@@ -173,9 +217,13 @@ export interface FileRouteTypes {
     | '/services'
     | '/_authenticated/admin'
     | '/admin/login'
+    | '/worker/dashboard'
+    | '/worker/history'
+    | '/worker/login'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/workers'
+    | '/worker/job/$id'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -188,6 +236,10 @@ export interface RootRouteChildren {
   ServiceAreasRoute: typeof ServiceAreasRoute
   ServicesRoute: typeof ServicesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  WorkerDashboardRoute: typeof WorkerDashboardRoute
+  WorkerHistoryRoute: typeof WorkerHistoryRoute
+  WorkerLoginRoute: typeof WorkerLoginRoute
+  WorkerJobIdRoute: typeof WorkerJobIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -255,6 +307,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/worker/dashboard': {
+      id: '/worker/dashboard'
+      path: '/worker/dashboard'
+      fullPath: '/worker/dashboard'
+      preLoaderRoute: typeof WorkerDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/worker/history': {
+      id: '/worker/history'
+      path: '/worker/history'
+      fullPath: '/worker/history'
+      preLoaderRoute: typeof WorkerHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/worker/login': {
+      id: '/worker/login'
+      path: '/worker/login'
+      fullPath: '/worker/login'
+      preLoaderRoute: typeof WorkerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -282,6 +355,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/workers'
       preLoaderRoute: typeof AuthenticatedAdminWorkersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/worker/job/$id': {
+      id: '/worker/job/$id'
+      path: '/worker/job/$id'
+      fullPath: '/worker/job/$id'
+      preLoaderRoute: typeof WorkerJobIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -326,6 +406,10 @@ const rootRouteChildren: RootRouteChildren = {
   ServiceAreasRoute: ServiceAreasRoute,
   ServicesRoute: ServicesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  WorkerDashboardRoute: WorkerDashboardRoute,
+  WorkerHistoryRoute: WorkerHistoryRoute,
+  WorkerLoginRoute: WorkerLoginRoute,
+  WorkerJobIdRoute: WorkerJobIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

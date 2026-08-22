@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           address: string
           area: string
+          assigned_worker_id: string | null
           booking_date: string
           created_at: string
           customer_name: string
@@ -34,6 +35,7 @@ export type Database = {
         Insert: {
           address: string
           area: string
+          assigned_worker_id?: string | null
           booking_date: string
           created_at?: string
           customer_name: string
@@ -50,6 +52,7 @@ export type Database = {
         Update: {
           address?: string
           area?: string
+          assigned_worker_id?: string | null
           booking_date?: string
           created_at?: string
           customer_name?: string
@@ -63,7 +66,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"]
           time_slot?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bookings_assigned_worker_id_fkey"
+            columns: ["assigned_worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -86,6 +97,42 @@ export type Database = {
         }
         Relationships: []
       }
+      workers: {
+        Row: {
+          created_at: string
+          current_lat: number | null
+          current_lng: number | null
+          id: string
+          is_online: boolean
+          name: string
+          password_hash: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          id?: string
+          is_online?: boolean
+          name: string
+          password_hash: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          id?: string
+          is_online?: boolean
+          name?: string
+          password_hash?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -101,7 +148,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "user"
-      booking_status: "pending" | "assigned" | "completed" | "cancelled"
+      booking_status:
+        | "pending"
+        | "assigned"
+        | "completed"
+        | "cancelled"
+        | "arrived"
+        | "in_progress"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -230,7 +283,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "user"],
-      booking_status: ["pending", "assigned", "completed", "cancelled"],
+      booking_status: [
+        "pending",
+        "assigned",
+        "completed",
+        "cancelled",
+        "arrived",
+        "in_progress",
+      ],
     },
   },
 } as const
