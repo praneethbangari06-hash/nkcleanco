@@ -111,7 +111,9 @@ function ConfirmedPage() {
       <section className="bg-background pb-20 pt-12">
         <div className="section-shell max-w-2xl">
           {loaded && booking ? (
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
+            <>
+            <TrackingCard reference={booking.reference} phone={booking.phone} />
+            <div className="mt-5 rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
               <h2 className="text-lg font-bold">Booking summary</h2>
               <dl className="mt-5 divide-y divide-border overflow-hidden rounded-2xl border border-border">
                 <Row icon={Sparkles} label="Service" value={booking.service_type} />
