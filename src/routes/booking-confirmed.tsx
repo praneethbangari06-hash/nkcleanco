@@ -308,6 +308,7 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
   }
 
   return (
+    <>
     <div
       className={`rounded-3xl border p-5 shadow-card ${
         assigned ? "border-mint/40 bg-mint/10" : "border-border bg-card"
