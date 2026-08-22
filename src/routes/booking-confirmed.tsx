@@ -321,7 +321,12 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
           {workerPoint ? (
             <ClientOnly fallback={<MapSkeleton />}>
               <Suspense fallback={<MapSkeleton />}>
-                <LiveTrackingMap customer={customer} worker={workerPoint} />
+                <LiveTrackingMap
+                  customer={customer}
+                  worker={workerPoint}
+                  onRouteDistance={setRoadKm}
+                />
+
               </Suspense>
             </ClientOnly>
           ) : (
