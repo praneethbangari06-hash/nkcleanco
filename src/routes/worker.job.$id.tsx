@@ -14,7 +14,9 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { BookingChat } from "@/components/chat/BookingChat";
 import { WorkerShell } from "@/components/worker/WorkerShell";
+import { sendWorkerMessage } from "@/lib/chat.functions";
 import { Button } from "@/components/ui/button";
 import { AREA_COORDS, getService, haversineKm, prettyDate, slotLabel } from "@/lib/nkcleanco";
 import { JOB_STAGES, NEXT_ACTION, requestGeolocation, useWorkerToken } from "@/lib/worker-client";
