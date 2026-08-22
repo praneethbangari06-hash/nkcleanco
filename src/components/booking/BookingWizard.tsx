@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { ClientOnly, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,9 +9,11 @@ import {
   CheckCircle2,
   Clock,
   CookingPot,
+  Crosshair,
   Home,
   Info,
   Loader2,
+  Map as MapIcon,
   MapPin,
   Phone,
   Sofa,
@@ -19,7 +21,7 @@ import {
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,13 +30,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { requestAutoAssignment } from "@/lib/booking.functions";
-import { geocodeAddress } from "@/lib/geocode.functions";
+import { geocodeAddress, reverseGeocode } from "@/lib/geocode.functions";
 import {
+  AREA_COORDS,
   CONFIRMATION_KEY,
   SERVICES,
   SERVICE_AREAS,
   TIME_SLOTS,
   bookingSchema,
+  cleanAddressText,
   getService,
   inr,
   newReference,
@@ -44,6 +48,8 @@ import {
   type BookingInput,
   type ServiceId,
 } from "@/lib/nkcleanco";
+
+const PinPickerMap = lazy(() => import("@/components/booking/PinPickerMap"));
 
 const ICONS: Record<ServiceId, LucideIcon> = {
   home: Home,
@@ -57,6 +63,7 @@ const ICONS: Record<ServiceId, LucideIcon> = {
 const STEPS = ["Service", "Address", "Date & time", "Contact", "Review"];
 
 type Draft = Partial<BookingInput>;
+type Point = { lat: number; lng: number };
 
 const OTHER_AREA = "__other__";
 
@@ -70,6 +77,54 @@ export function BookingWizard({ initialService }: { initialService?: string | un
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [locating, setLocating] = useState(false);
+
+  /** Exact coordinates captured from GPS or the map pin (wins over typed text). */
+  const [point, setPoint] = useState<Point | null>(null);
+  const [source, setSource] = useState<"gps" | "map" | null>(null);
+  const [gpsBusy, setGpsBusy] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [resolved, setResolved] = useState<string>("");
+
+  const mapCenter: Point =
+    point ?? AREA_COORDS[draft.area ?? ""] ?? AREA_COORDS["Narsingi"] ?? { lat: 17.3894, lng: 78.3517 };
+
+  const useMyLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      toast.error("Your browser doesn't support location. Please pick on the map instead.");
+      return;
+    }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setPoint(next);
+        setSource("gps");
+        setShowMap(false);
+        try {
+          const info = await reverseGeocode({ data: next });
+          if (info) {
+            setResolved(info.display);
+            setDraft((prev) => ({
+              ...prev,
+              flat: prev.flat?.trim() ? prev.flat : info.flat || prev.flat,
+              street: prev.street?.trim() ? prev.street : info.street,
+            }));
+            setErrors({});
+          }
+        } catch {
+          /* keep GPS coords even if the address lookup fails */
+        }
+        setGpsBusy(false);
+        toast.success("Location captured");
+      },
+      () => {
+        setGpsBusy(false);
+        toast.error("We couldn't get your location. Allow location access or pick on the map.");
+      },
+      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 0 },
+    );
+  };
+
 
   const service = getService(draft.serviceType);
   const minDate = todayIso();
