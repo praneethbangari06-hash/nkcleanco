@@ -158,6 +158,7 @@ function ConfirmedPage() {
                 </Button>
               </div>
             </div>
+            </>
           ) : (
             <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-card">
               <p className="text-sm text-muted-foreground">
