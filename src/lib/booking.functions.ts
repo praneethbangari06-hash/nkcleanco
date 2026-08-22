@@ -34,7 +34,7 @@ export const bookingTracking = createServerFn({ method: "POST" })
 
     const { data: booking } = await supabaseAdmin
       .from("bookings")
-      .select("id, status, assigned_worker_id, offered_worker_ids")
+      .select("id, status, area, assigned_worker_id, offered_worker_ids")
       .eq("reference", data.reference)
       .eq("phone", data.phone)
       .maybeSingle();
@@ -53,18 +53,29 @@ export const bookingTracking = createServerFn({ method: "POST" })
       .maybeSingle();
 
     let workerName: string | null = null;
+    let workerLat: number | null = null;
+    let workerLng: number | null = null;
+    let locationUpdatedAt: string | null = null;
     if (fresh?.assigned_worker_id && fresh.status !== "pending") {
       const { data: worker } = await supabaseAdmin
         .from("workers")
-        .select("name")
+        .select("name, current_lat, current_lng, last_location_update")
         .eq("id", fresh.assigned_worker_id)
         .maybeSingle();
       workerName = worker?.name ?? null;
+      workerLat = worker?.current_lat ?? null;
+      workerLng = worker?.current_lng ?? null;
+      locationUpdatedAt = worker?.last_location_update ?? null;
     }
 
     return {
       status: fresh?.status ?? booking.status,
+      area: booking.area,
       worker_name: workerName,
+      worker_lat: workerLat,
+      worker_lng: workerLng,
+      location_updated_at: locationUpdatedAt,
       exhausted,
     };
   });
+
