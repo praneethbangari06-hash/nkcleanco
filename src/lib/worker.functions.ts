@@ -136,9 +136,6 @@ export const respondToJobRequest = createServerFn({ method: "POST" })
     return { accepted: data.accept };
   });
 
-const JOB_FIELDS =
-  "id, reference, customer_name, phone, address, area, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at";
-
 export const workerActiveJob = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ token: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {
@@ -148,7 +145,9 @@ export const workerActiveJob = createServerFn({ method: "POST" })
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
-      .select(JOB_FIELDS)
+      .select(
+        "id, reference, customer_name, phone, address, area, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at",
+      )
       .eq("assigned_worker_id", worker.id)
       .in("status", ["assigned", "arrived", "in_progress"])
       .order("booking_date", { ascending: true })
@@ -169,7 +168,9 @@ export const workerJob = createServerFn({ method: "POST" })
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
-      .select(JOB_FIELDS)
+      .select(
+        "id, reference, customer_name, phone, address, area, service_type, booking_date, time_slot, status, notes, price_min, price_max, created_at",
+      )
       .eq("id", data.id)
       .eq("assigned_worker_id", worker.id)
       .maybeSingle();
