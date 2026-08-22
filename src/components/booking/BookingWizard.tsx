@@ -289,8 +289,108 @@ export function BookingWizard({ initialService }: { initialService?: string | un
         )}
 
         {step === 1 && (
-          <StepBlock title="Where should we come?" hint="We only serve three areas right now.">
-            <div className="grid gap-4">
+          <StepBlock
+            title="Where should we come?"
+            hint="Set your exact location — this is what our cleaner navigates to."
+          >
+            <div className="grid gap-3">
+              <button
+                type="button"
+                onClick={useMyLocation}
+                disabled={gpsBusy}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-smooth active:scale-[0.99] ${
+                  source === "gps"
+                    ? "border-primary bg-primary-soft shadow-glow"
+                    : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card"
+                }`}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground">
+                  {gpsBusy ? (
+                    <Loader2 className="size-5 animate-spin" />
+                  ) : (
+                    <Crosshair className="size-5" />
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold text-ink">
+                    {gpsBusy ? "Getting your location…" : "Use my current location"}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Most accurate — uses your phone&apos;s GPS
+                  </span>
+                </span>
+                {source === "gps" && <Check className="ml-auto size-5 shrink-0 text-primary" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowMap((v) => !v)}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-smooth active:scale-[0.99] ${
+                  source === "map"
+                    ? "border-primary bg-primary-soft shadow-glow"
+                    : "border-border bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card"
+                }`}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                  <MapIcon className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold text-ink">Pick on map</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Booking for an office or a relative&apos;s home? Drop a pin.
+                  </span>
+                </span>
+                {source === "map" && <Check className="ml-auto size-5 shrink-0 text-primary" />}
+              </button>
+
+              {showMap && (
+                <div>
+                  <ClientOnly
+                    fallback={
+                      <div className="h-[240px] w-full animate-pulse rounded-2xl bg-muted" />
+                    }
+                  >
+                    <Suspense
+                      fallback={
+                        <div className="h-[240px] w-full animate-pulse rounded-2xl bg-muted" />
+                      }
+                    >
+                      <PinPickerMap
+                        center={mapCenter}
+                        value={point}
+                        onChange={(p) => {
+                          setPoint(p);
+                          setSource("map");
+                          setResolved("");
+                        }}
+                      />
+                    </Suspense>
+                  </ClientOnly>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Tap the map or drag the pin to the exact spot.
+                  </p>
+                </div>
+              )}
+
+              {point && (
+                <p className="flex gap-2 rounded-2xl border border-mint/40 bg-mint-soft p-3.5 text-xs font-semibold text-mint">
+                  <MapPin className="mt-0.5 size-4 shrink-0" />
+                  <span className="min-w-0">
+                    Exact location saved ({point.lat.toFixed(5)}, {point.lng.toFixed(5)})
+                    {resolved && (
+                      <span className="mt-1 block font-medium normal-case text-muted-foreground">
+                        {resolved}
+                      </span>
+                    )}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-4 border-t border-border pt-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {point ? "Address details for the cleaner" : "Or type your address"}
+              </p>
               <div>
                 <Label htmlFor="flat">House / flat number</Label>
                 <Input
@@ -316,7 +416,13 @@ export function BookingWizard({ initialService }: { initialService?: string | un
                   className="mt-1.5 h-12"
                 />
                 <FieldError message={errors["street"]} />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {point
+                    ? "Text edits help the cleaner find your door — your saved pin stays unchanged."
+                    : "Typed addresses are less accurate. For best results use “My location” or “Pick on map” above."}
+                </p>
               </div>
+
 
               <div>
                 <Label htmlFor="area">Area</Label>
