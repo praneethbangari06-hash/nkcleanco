@@ -213,8 +213,9 @@ export function BookingWizard({ initialService }: { initialService?: string | un
       notes: data.notes ?? null,
       price_min: picked.priceMin,
       price_max: picked.priceMax,
-      customer_lat: point?.lat ?? null,
-      customer_lng: point?.lng ?? null,
+      customer_lat: coords?.lat ?? null,
+      customer_lng: coords?.lng ?? null,
+
     };
 
     const { error } = await supabase.from("bookings").insert(record);
