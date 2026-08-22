@@ -240,6 +240,8 @@ function statusLabel(status: string) {
 
 function TrackingCard({ reference, phone }: { reference: string; phone: string }) {
   const [state, setState] = useState<TrackingState | null>(null);
+  const [roadKm, setRoadKm] = useState<number | null>(null);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -279,7 +281,9 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
     !Number.isNaN(updatedAt) &&
     Date.now() - updatedAt < STALE_MS;
   const workerPoint = fresh ? { lat: state.worker_lat!, lng: state.worker_lng! } : null;
-  const distance = workerPoint && customer ? haversineKm(customer, workerPoint) : null;
+  const straight = workerPoint && customer ? haversineKm(customer, workerPoint) : null;
+  const distance = roadKm ?? straight;
+
 
   if (completed) {
     return (
@@ -317,7 +321,12 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
           {workerPoint ? (
             <ClientOnly fallback={<MapSkeleton />}>
               <Suspense fallback={<MapSkeleton />}>
-                <LiveTrackingMap customer={customer} worker={workerPoint} />
+                <LiveTrackingMap
+                  customer={customer}
+                  worker={workerPoint}
+                  onRouteDistance={setRoadKm}
+                />
+
               </Suspense>
             </ClientOnly>
           ) : (
