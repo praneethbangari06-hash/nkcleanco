@@ -118,7 +118,7 @@ export const updateWorker = createServerFn({ method: "POST" })
         .eq("phone", data.phone)
         .neq("id", data.id)
         .maybeSingle();
-      if (clash) throw new Error("Another cleaner already uses this phone number.");
+      if (clash) return { ok: false as const, message: "Another cleaner already uses this phone number." };
       patch.phone = data.phone;
     }
     if (data.isActive != null) {
