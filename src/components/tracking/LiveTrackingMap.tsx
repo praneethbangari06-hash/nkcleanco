@@ -115,7 +115,7 @@ export default function LiveTrackingMap({ customer, worker }: Props) {
 
         if (worker) {
           const overlay = new LiveDot(new google.maps.LatLng(worker.lat, worker.lng));
-          overlay.setMap(map);
+          (overlay as any)["setMap"](map);
           workerOverlay.current = overlay;
           const bounds = new google.maps.LatLngBounds();
           bounds.extend(customer);

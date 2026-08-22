@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarDays,
   Copy,
@@ -9,15 +9,17 @@ import {
   Sparkles,
   UserCheck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/site/PageShell";
 import { bookingTracking } from "@/lib/booking.functions";
 import { Button } from "@/components/ui/button";
 import {
+  AREA_COORDS,
   BRAND,
   CONFIRMATION_KEY,
+  haversineKm,
   inr,
   prettyDate,
   slotLabel,
