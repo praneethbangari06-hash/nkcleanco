@@ -1,0 +1,7 @@
+INSERT INTO public.bookings (reference, customer_name, phone, address, area, service_type, booking_date, time_slot, notes, price_min, price_max, status) VALUES
+('CC-8HK2QM', 'Sneha Reddy', '9848012345', 'Flat 1204, Aparna Sarovar Zenith', 'Narsingi', 'Home Deep Cleaning', CURRENT_DATE, 'morning', '3BHK, needs balcony cleaning too', 2999, 5999, 'assigned'),
+('CC-4TP9WD', 'Karthik Rao', '9701122334', 'Villa 27, My Home Avatar', 'Kokapet', 'Bathroom Cleaning', CURRENT_DATE, 'afternoon', NULL, 599, 1299, 'pending'),
+('CC-6RM3XB', 'Priyanka Sharma', '9966554433', 'H.No 8-2-14, Main Road', 'Kanapur', 'Kitchen Cleaning', CURRENT_DATE, 'evening', 'Chimney degreasing required', 999, 1999, 'pending'),
+('CC-9LQ5ZT', 'Arun Kumar', '9885566778', 'Office 302, Vasavi Sky City', 'Kokapet', 'Office Cleaning', CURRENT_DATE + 1, 'morning', '1800 sqft office floor', 1999, 4999, 'pending'),
+('CC-2WJ7NF', 'Meghana Iyer', '9701998877', 'Flat 604, Rajapushpa Atria', 'Narsingi', 'Sofa & Carpet Cleaning', CURRENT_DATE - 1, 'afternoon', '5-seater sofa + 2 carpets', 899, 2499, 'completed'),
+('CC-5DB8YV', 'Imran Shaikh', '9848998877', 'Flat 301, Ramky One Galaxia', 'Narsingi', 'Home Cleaning', CURRENT_DATE - 2, 'morning', NULL, 1499, 2999, 'completed');
