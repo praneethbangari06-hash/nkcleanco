@@ -65,7 +65,9 @@ export const createWorker = createServerFn({ method: "POST" })
       .select("id")
       .eq("phone", data.phone)
       .maybeSingle();
-    if (existing) throw new Error("A cleaner with this phone number already exists.");
+    if (existing) {
+      return { ok: false as const, message: "A cleaner with this phone number already exists." };
+    }
 
     const { data: created, error } = await supabaseAdmin
       .from("workers")
@@ -80,7 +82,7 @@ export const createWorker = createServerFn({ method: "POST" })
       .select("id, name, phone")
       .single();
     if (error) throw new Error(error.message);
-    return created;
+    return { ok: true as const, worker: created };
   });
 
 export const updateWorker = createServerFn({ method: "POST" })
@@ -116,7 +118,7 @@ export const updateWorker = createServerFn({ method: "POST" })
         .eq("phone", data.phone)
         .neq("id", data.id)
         .maybeSingle();
-      if (clash) throw new Error("Another cleaner already uses this phone number.");
+      if (clash) return { ok: false as const, message: "Another cleaner already uses this phone number." };
       patch.phone = data.phone;
     }
     if (data.isActive != null) {

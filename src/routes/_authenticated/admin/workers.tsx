@@ -77,7 +77,11 @@ function WorkersPage() {
   const create = useMutation({
     mutationFn: (input: { name: string; phone: string; password: string }) =>
       addWorker({ data: input }),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (result && result.ok === false) {
+        toast.error(result.message);
+        return;
+      }
       toast.success("Cleaner account created — they can log in now");
       setForm({ name: "", phone: "", password: "" });
       setAddOpen(false);
@@ -94,7 +98,11 @@ function WorkersPage() {
       isActive?: boolean;
       password?: string;
     }) => editWorker({ data: input }),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (result && result.ok === false) {
+        toast.error(result.message);
+        return;
+      }
       toast.success("Saved");
       setEditing(null);
       setResetting(null);
