@@ -4,9 +4,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 
-interface ChatMessage {
+export interface ChatMessage {
   id: string;
   sender_type: string;
   message_text: string;
@@ -20,6 +19,8 @@ interface Props {
   /** Chat is read-only once the job is completed/cancelled. */
   locked: boolean;
   onSend: (text: string) => Promise<unknown>;
+  /** Credential-checked fetch — messages are never readable straight from the table. */
+  fetchMessages: () => Promise<ChatMessage[]>;
   peerLabel: string;
 }
 
@@ -27,7 +28,14 @@ function timeOf(iso: string) {
   return new Date(iso).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
 }
 
-export function BookingChat({ bookingId, sender, locked, onSend, peerLabel }: Props) {
+export function BookingChat({
+  bookingId,
+  sender,
+  locked,
+  onSend,
+  fetchMessages,
+  peerLabel,
+}: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
