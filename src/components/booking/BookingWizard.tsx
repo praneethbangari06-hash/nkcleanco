@@ -454,7 +454,7 @@ export function BookingWizard({ initialService }: { initialService?: string | un
               {submitting ? (
                 <>
                   <Loader2 className="size-5 animate-spin" />
-                  Confirming…
+                  {locating ? "Pinpointing your address…" : "Confirming…"}
                 </>
               ) : (
                 <>
