@@ -4,9 +4,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 
-interface ChatMessage {
+export interface ChatMessage {
   id: string;
   sender_type: string;
   message_text: string;
@@ -20,6 +19,8 @@ interface Props {
   /** Chat is read-only once the job is completed/cancelled. */
   locked: boolean;
   onSend: (text: string) => Promise<unknown>;
+  /** Credential-checked fetch — messages are never readable straight from the table. */
+  fetchMessages: () => Promise<ChatMessage[]>;
   peerLabel: string;
 }
 
@@ -27,7 +28,14 @@ function timeOf(iso: string) {
   return new Date(iso).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
 }
 
-export function BookingChat({ bookingId, sender, locked, onSend, peerLabel }: Props) {
+export function BookingChat({
+  bookingId,
+  sender,
+  locked,
+  onSend,
+  fetchMessages,
+  peerLabel,
+}: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -37,36 +45,21 @@ export function BookingChat({ bookingId, sender, locked, onSend, peerLabel }: Pr
     let cancelled = false;
 
     const load = async () => {
-      const { data } = await supabase
-        .from("messages")
-        .select("id, sender_type, message_text, created_at")
-        .eq("booking_id", bookingId)
-        .order("created_at", { ascending: true });
-      if (!cancelled) setMessages((data ?? []) as ChatMessage[]);
+      try {
+        const rows = await fetchMessages();
+        if (!cancelled) setMessages(rows);
+      } catch {
+        /* keep the last known thread */
+      }
     };
     void load();
-
-    const channel = supabase
-      .channel(`messages-${bookingId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `booking_id=eq.${bookingId}`,
-        },
-        (payload) => {
-          const row = payload.new as ChatMessage;
-          setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
-        },
-      )
-      .subscribe();
+    const timer = setInterval(load, 5_000);
 
     return () => {
       cancelled = true;
-      void supabase.removeChannel(channel);
+      clearInterval(timer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingId]);
 
   useEffect(() => {
