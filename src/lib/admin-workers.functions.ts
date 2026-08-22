@@ -86,8 +86,15 @@ export const updateWorker = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const patch: Record<string, unknown> = {};
-    if (data.name) patch["name"] = data.name;
+    const patch: {
+      name?: string;
+      phone?: string;
+      is_active?: boolean;
+      is_online?: boolean;
+      status?: string;
+      password_hash?: string;
+    } = {};
+    if (data.name) patch.name = data.name;
     if (data.phone) {
       const { data: clash } = await supabaseAdmin
         .from("workers")
@@ -96,18 +103,18 @@ export const updateWorker = createServerFn({ method: "POST" })
         .neq("id", data.id)
         .maybeSingle();
       if (clash) throw new Error("Another cleaner already uses this phone number.");
-      patch["phone"] = data.phone;
+      patch.phone = data.phone;
     }
     if (data.isActive != null) {
-      patch["is_active"] = data.isActive;
+      patch.is_active = data.isActive;
       if (!data.isActive) {
-        patch["is_online"] = false;
-        patch["status"] = "offline";
+        patch.is_online = false;
+        patch.status = "offline";
       }
     }
     if (data.password) {
       const { hashPassword } = await import("./worker.server");
-      patch["password_hash"] = await hashPassword(data.password);
+      patch.password_hash = await hashPassword(data.password);
     }
     if (Object.keys(patch).length === 0) return { ok: true };
 
