@@ -19,6 +19,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as WorkerDashboardRouteImport } from './routes/worker.dashboard'
+import { Route as WorkerHistoryRouteImport } from './routes/worker.history'
 import { Route as WorkerLoginRouteImport } from './routes/worker.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminBookingsRouteImport } from './routes/_authenticated/admin/bookings'
@@ -75,6 +76,11 @@ const WorkerDashboardRoute = WorkerDashboardRouteImport.update({
   path: '/worker/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkerHistoryRoute = WorkerHistoryRouteImport.update({
+  id: '/worker/history',
+  path: '/worker/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkerLoginRoute = WorkerLoginRouteImport.update({
   id: '/worker/login',
   path: '/worker/login',
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/worker/dashboard': typeof WorkerDashboardRoute
+  '/worker/history': typeof WorkerHistoryRoute
   '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/admin/login': typeof AdminLoginRoute
   '/worker/dashboard': typeof WorkerDashboardRoute
+  '/worker/history': typeof WorkerHistoryRoute
   '/worker/login': typeof WorkerLoginRoute
   '/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/worker/dashboard': typeof WorkerDashboardRoute
+  '/worker/history': typeof WorkerHistoryRoute
   '/worker/login': typeof WorkerLoginRoute
   '/_authenticated/admin/bookings': typeof AuthenticatedAdminBookingsRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/login'
     | '/worker/dashboard'
+    | '/worker/history'
     | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/admin/login'
     | '/worker/dashboard'
+    | '/worker/history'
     | '/worker/login'
     | '/admin/bookings'
     | '/admin/dashboard'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/admin/login'
     | '/worker/dashboard'
+    | '/worker/history'
     | '/worker/login'
     | '/_authenticated/admin/bookings'
     | '/_authenticated/admin/dashboard'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   WorkerDashboardRoute: typeof WorkerDashboardRoute
+  WorkerHistoryRoute: typeof WorkerHistoryRoute
   WorkerLoginRoute: typeof WorkerLoginRoute
   WorkerJobIdRoute: typeof WorkerJobIdRoute
 }
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/worker/dashboard'
       fullPath: '/worker/dashboard'
       preLoaderRoute: typeof WorkerDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/worker/history': {
+      id: '/worker/history'
+      path: '/worker/history'
+      fullPath: '/worker/history'
+      preLoaderRoute: typeof WorkerHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/worker/login': {
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   AdminLoginRoute: AdminLoginRoute,
   WorkerDashboardRoute: WorkerDashboardRoute,
+  WorkerHistoryRoute: WorkerHistoryRoute,
   WorkerLoginRoute: WorkerLoginRoute,
   WorkerJobIdRoute: WorkerJobIdRoute,
 }
