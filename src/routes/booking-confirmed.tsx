@@ -215,25 +215,42 @@ function Row({
   );
 }
 
+interface TrackingState {
+  status: string;
+  area: string;
+  worker_name: string | null;
+  worker_lat: number | null;
+  worker_lng: number | null;
+  location_updated_at: string | null;
+  exhausted: boolean;
+}
+
+const LiveTrackingMap = lazy(() => import("@/components/tracking/LiveTrackingMap"));
+
+const STALE_MS = 2 * 60 * 1000;
+
+function statusLabel(status: string) {
+  if (status === "arrived") return "Arrived at your address";
+  if (status === "in_progress") return "Cleaning in progress";
+  if (status === "completed") return "Service completed";
+  return "On the way";
+}
+
 function TrackingCard({ reference, phone }: { reference: string; phone: string }) {
-  const [state, setState] = useState<{
-    status: string;
-    worker_name: string | null;
-    exhausted: boolean;
-  } | null>(null);
+  const [state, setState] = useState<TrackingState | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const poll = async () => {
       try {
         const result = await bookingTracking({ data: { reference, phone } });
-        if (!cancelled && result) setState(result);
+        if (!cancelled && result) setState(result as TrackingState);
       } catch {
         /* keep the last known state */
       }
     };
     void poll();
-    const timer = setInterval(poll, 8_000);
+    const timer = setInterval(poll, 15_000);
     return () => {
       cancelled = true;
       clearInterval(timer);
@@ -243,6 +260,7 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
   if (!state) return null;
 
   const assigned = state.status !== "pending";
+  const completed = state.status === "completed";
   const message = assigned
     ? state.worker_name
       ? `Cleaner assigned! ${state.worker_name} is on the way`
@@ -251,19 +269,84 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
       ? "All our cleaners are currently busy, we'll notify you shortly"
       : "Finding a cleaner near you…";
 
+  const customer = AREA_COORDS[state.area] ?? null;
+  const updatedAt = state.location_updated_at ? Date.parse(state.location_updated_at) : NaN;
+  const fresh =
+    state.worker_lat != null &&
+    state.worker_lng != null &&
+    !Number.isNaN(updatedAt) &&
+    Date.now() - updatedAt < STALE_MS;
+  const workerPoint = fresh ? { lat: state.worker_lat!, lng: state.worker_lng! } : null;
+  const distance = workerPoint && customer ? haversineKm(customer, workerPoint) : null;
+
+  if (completed) {
+    return (
+      <div className="rounded-3xl border border-mint/40 bg-mint/10 p-5 shadow-card">
+        <div className="flex items-center gap-3">
+          <UserCheck className="size-6 shrink-0 text-primary" />
+          <p className="text-sm font-semibold text-foreground">Service completed</p>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {state.worker_name ? `${state.worker_name} has` : "Your cleaner has"} finished the job.
+          Thank you for choosing NK CleanCo!
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`flex items-center gap-3 rounded-3xl border p-5 shadow-card ${
+      className={`rounded-3xl border p-5 shadow-card ${
         assigned ? "border-mint/40 bg-mint/10" : "border-border bg-card"
       }`}
       aria-live="polite"
     >
-      {assigned ? (
-        <UserCheck className="size-6 shrink-0 text-primary" />
-      ) : (
-        <Loader2 className="size-6 shrink-0 animate-spin text-primary" />
+      <div className="flex items-center gap-3">
+        {assigned ? (
+          <UserCheck className="size-6 shrink-0 text-primary" />
+        ) : (
+          <Loader2 className="size-6 shrink-0 animate-spin text-primary" />
+        )}
+        <p className="text-sm font-semibold text-foreground">{message}</p>
+      </div>
+
+      {assigned && customer && (
+        <div className="mt-4">
+          {workerPoint ? (
+            <ClientOnly fallback={<MapSkeleton />}>
+              <Suspense fallback={<MapSkeleton />}>
+                <LiveTrackingMap customer={customer} worker={workerPoint} />
+              </Suspense>
+            </ClientOnly>
+          ) : (
+            <div className="flex h-[260px] items-center justify-center rounded-2xl border border-border bg-muted/40 text-sm font-medium text-muted-foreground sm:h-[300px]">
+              <Loader2 className="mr-2 size-4 animate-spin" /> Cleaner location updating…
+            </div>
+          )}
+
+          <dl className="mt-4 grid gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-muted-foreground">Cleaner</dt>
+              <dd className="font-semibold">{state.worker_name ?? "Assigned"}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-muted-foreground">Distance away</dt>
+              <dd className="font-semibold">
+                {distance != null ? `${distance} km` : "Updating…"}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-muted-foreground">Status</dt>
+              <dd className="font-semibold text-primary">{statusLabel(state.status)}</dd>
+            </div>
+          </dl>
+        </div>
       )}
-      <p className="text-sm font-semibold text-foreground">{message}</p>
     </div>
   );
 }
+
+function MapSkeleton() {
+  return <div className="h-[260px] w-full animate-pulse rounded-2xl bg-muted sm:h-[300px]" />;
+}
+
