@@ -8,13 +8,27 @@ const passwordSchema = z.string().min(6, "Use at least 6 characters").max(72);
 
 async function assertAdmin(context: { supabase: unknown; userId: string }) {
   const supabase = context.supabase as {
-    rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+    from: (table: string) => {
+      select: (cols: string) => {
+        eq: (
+          col: string,
+          value: string,
+        ) => {
+          eq: (
+            col: string,
+            value: string,
+          ) => { maybeSingle: () => Promise<{ data: unknown }> };
+        };
+      };
+    };
   };
-  const { data } = await supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (data !== true) throw new Error("Forbidden");
+  const { data } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (!data) throw new Error("Forbidden");
 }
 
 export const listWorkers = createServerFn({ method: "POST" })
