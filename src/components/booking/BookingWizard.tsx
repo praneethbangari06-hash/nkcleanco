@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { requestAutoAssignment } from "@/lib/booking.functions";
+import { geocodeAddress } from "@/lib/geocode.functions";
 import {
   CONFIRMATION_KEY,
   SERVICES,
