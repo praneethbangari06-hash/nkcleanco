@@ -101,9 +101,14 @@ export function SiteFooter() {
       <div className="border-t border-border">
         <div className="section-shell flex flex-col items-center justify-between gap-3 py-5 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} {BRAND.name}. All rights reserved.</p>
-          <Link to="/admin/login" className="transition-smooth hover:text-primary">
-            Team login
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/worker/login" className="transition-smooth hover:text-primary">
+              Staff login
+            </Link>
+            <Link to="/admin/login" className="transition-smooth hover:text-primary">
+              Team login
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
