@@ -12,7 +12,9 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { BookingChat } from "@/components/chat/BookingChat";
 import { PageShell } from "@/components/site/PageShell";
+import { sendCustomerMessage } from "@/lib/chat.functions";
 import { bookingTracking } from "@/lib/booking.functions";
 import { Button } from "@/components/ui/button";
 import {
