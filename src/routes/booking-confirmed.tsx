@@ -362,6 +362,19 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
         </div>
       )}
     </div>
+
+    {assigned && (
+      <div className="mt-5">
+        <BookingChat
+          bookingId={state.booking_id}
+          sender="customer"
+          locked={false}
+          peerLabel={state.worker_name ?? "your cleaner"}
+          onSend={(text) => sendCustomerMessage({ data: { reference, phone, text } })}
+        />
+      </div>
+    )}
+    </>
   );
 }
 
