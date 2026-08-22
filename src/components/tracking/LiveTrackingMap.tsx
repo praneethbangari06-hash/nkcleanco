@@ -65,7 +65,7 @@ export default function LiveTrackingMap({ customer, worker }: Props) {
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: "cooperative",
-ḟ        });
+        });
         mapRef.current = map;
 
         new google.maps.Marker({
@@ -94,11 +94,11 @@ export default function LiveTrackingMap({ customer, worker }: Props) {
             const div = document.createElement("div");
             div.className = "nk-live-dot";
             this.div = div;
-            this.getPanes().overlayMouseTarget.appendChild(div);
+            (this as any)["getPanes"]().overlayMouseTarget.appendChild(div);
           }
           draw() {
             if (!this.div) return;
-            const point = this.getProjection().fromLatLngToDivPixel(this.position);
+            const point = (this as any)["getProjection"]().fromLatLngToDivPixel(this.position);
             if (!point) return;
             this.div.style.left = `${point.x}px`;
             this.div.style.top = `${point.y}px`;
@@ -130,7 +130,7 @@ export default function LiveTrackingMap({ customer, worker }: Props) {
     void init();
     return () => {
       cancelled = true;
-      workerOverlay.current?.setMap?.(null);
+      workerOverlay.current?.["setMap"]?.(null);
       workerOverlay.current = null;
       mapRef.current = null;
     };
