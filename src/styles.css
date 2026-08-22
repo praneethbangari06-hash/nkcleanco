@@ -342,3 +342,14 @@
   0% { transform: scale(0.6); opacity: 0.45; }
   100% { transform: scale(1.8); opacity: 0; }
 }
+
+.nk-pin-marker .nk-pin-dot {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: hsl(var(--primary, 173 80% 26%));
+  border: 4px solid #fff;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.28);
+  cursor: grab;
+}
