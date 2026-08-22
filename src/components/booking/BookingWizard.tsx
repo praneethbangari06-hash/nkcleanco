@@ -122,6 +122,18 @@ export function BookingWizard({ initialService }: { initialService?: string | un
     const data = parsed.data;
     const picked = getService(data.serviceType)!;
 
+    setSubmitting(true);
+
+    // Geocode the exact typed address so tracking + distance use the real location.
+    let point: { lat: number; lng: number } | null = null;
+    try {
+      point = await geocodeAddress({
+        data: { flat: data.flat, street: data.street, area: data.area },
+      });
+    } catch {
+      point = null;
+    }
+
     const record = {
       reference: newReference(),
       customer_name: data.name,
