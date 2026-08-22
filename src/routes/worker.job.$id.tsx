@@ -258,6 +258,9 @@ function WorkerJobPage() {
             onSend={(text) =>
               sendWorkerMessage({ data: { token: token as string, bookingId: booking.id, text } })
             }
+            fetchMessages={() =>
+              fetchWorkerMessages({ data: { token: token as string, bookingId: booking.id } })
+            }
           />
         </div>
       )}
