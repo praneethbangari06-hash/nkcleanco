@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 import { BookingChat } from "@/components/chat/BookingChat";
 import { PageShell } from "@/components/site/PageShell";
-import { sendCustomerMessage } from "@/lib/chat.functions";
+import { fetchCustomerMessages, sendCustomerMessage } from "@/lib/chat.functions";
 import { bookingTracking } from "@/lib/booking.functions";
 import { Button } from "@/components/ui/button";
 import {
@@ -373,6 +373,7 @@ function TrackingCard({ reference, phone }: { reference: string; phone: string }
           locked={false}
           peerLabel={state.worker_name ?? "your cleaner"}
           onSend={(text) => sendCustomerMessage({ data: { reference, phone, text } })}
+          fetchMessages={() => fetchCustomerMessages({ data: { reference, phone } })}
         />
       </div>
     )}
