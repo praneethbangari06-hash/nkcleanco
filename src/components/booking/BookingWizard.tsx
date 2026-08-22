@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { requestAutoAssignment } from "@/lib/booking.functions";
 import {
   CONFIRMATION_KEY,
   SERVICES,
@@ -143,6 +144,11 @@ export function BookingWizard({ initialService }: { initialService?: string | un
       toast.error("We couldn't save your booking. Please try again or call us.");
       return;
     }
+
+    // Kick off automatic assignment to the nearest online cleaner.
+    void requestAutoAssignment({
+      data: { reference: record.reference, phone: record.phone },
+    }).catch(() => undefined);
 
     sessionStorage.setItem(CONFIRMATION_KEY, JSON.stringify(record));
     navigate({ to: "/booking-confirmed" });

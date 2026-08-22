@@ -24,6 +24,8 @@ export type Database = {
           customer_name: string
           id: string
           notes: string | null
+          offered_at: string | null
+          offered_worker_ids: string[]
           phone: string
           price_max: number
           price_min: number
@@ -41,6 +43,8 @@ export type Database = {
           customer_name: string
           id?: string
           notes?: string | null
+          offered_at?: string | null
+          offered_worker_ids?: string[]
           phone: string
           price_max?: number
           price_min?: number
@@ -58,6 +62,8 @@ export type Database = {
           customer_name?: string
           id?: string
           notes?: string | null
+          offered_at?: string | null
+          offered_worker_ids?: string[]
           phone?: string
           price_max?: number
           price_min?: number
@@ -104,6 +110,7 @@ export type Database = {
           current_lng: number | null
           id: string
           is_online: boolean
+          last_location_update: string | null
           name: string
           password_hash: string
           phone: string
@@ -115,6 +122,7 @@ export type Database = {
           current_lng?: number | null
           id?: string
           is_online?: boolean
+          last_location_update?: string | null
           name: string
           password_hash: string
           phone: string
@@ -126,6 +134,7 @@ export type Database = {
           current_lng?: number | null
           id?: string
           is_online?: boolean
+          last_location_update?: string | null
           name?: string
           password_hash?: string
           phone?: string

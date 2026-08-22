@@ -21,6 +21,7 @@ import { requestGeolocation, useWorkerToken } from "@/lib/worker-client";
 import {
   respondToJobRequest,
   setWorkerOnline,
+  updateWorkerLocation,
   workerJobRequest,
   workerMe,
 } from "@/lib/worker.functions";
@@ -61,6 +62,30 @@ function WorkerDashboard() {
 
   const online = me.data?.is_online ?? false;
   const { data: activeJob } = useActiveJob(token);
+
+  // While online, keep the worker's GPS position fresh so auto-assignment can
+  // pick the nearest cleaner. Stops as soon as they go offline.
+  useEffect(() => {
+    if (!token || !online) return;
+    let cancelled = false;
+    const push = async () => {
+      const coords = await requestGeolocation();
+      if (!coords || cancelled) return;
+      try {
+        await updateWorkerLocation({ data: { token, lat: coords.lat, lng: coords.lng } });
+      } catch {
+        /* transient network issue — the next tick retries */
+      }
+    };
+    void push();
+    const timer = setInterval(push, 15_000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [token, online]);
+
+
 
   const request = useQuery({
     queryKey: ["worker", "request", token],

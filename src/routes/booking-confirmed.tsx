@@ -1,9 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarDays, Copy, MapPin, Phone, PhoneCall, Sparkles } from "lucide-react";
+import {
+  CalendarDays,
+  Copy,
+  Loader2,
+  MapPin,
+  Phone,
+  PhoneCall,
+  Sparkles,
+  UserCheck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/site/PageShell";
+import { bookingTracking } from "@/lib/booking.functions";
 import { Button } from "@/components/ui/button";
 import {
   BRAND,
@@ -111,7 +121,9 @@ function ConfirmedPage() {
       <section className="bg-background pb-20 pt-12">
         <div className="section-shell max-w-2xl">
           {loaded && booking ? (
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
+            <>
+            <TrackingCard reference={booking.reference} phone={booking.phone} />
+            <div className="mt-5 rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
               <h2 className="text-lg font-bold">Booking summary</h2>
               <dl className="mt-5 divide-y divide-border overflow-hidden rounded-2xl border border-border">
                 <Row icon={Sparkles} label="Service" value={booking.service_type} />
@@ -156,6 +168,7 @@ function ConfirmedPage() {
                 </Button>
               </div>
             </div>
+            </>
           ) : (
             <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-card">
               <p className="text-sm text-muted-foreground">
@@ -198,6 +211,59 @@ function Row({
         </span>
         {sub && <span className="mt-0.5 block text-xs font-medium text-muted-foreground">{sub}</span>}
       </dd>
+    </div>
+  );
+}
+
+function TrackingCard({ reference, phone }: { reference: string; phone: string }) {
+  const [state, setState] = useState<{
+    status: string;
+    worker_name: string | null;
+    exhausted: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const result = await bookingTracking({ data: { reference, phone } });
+        if (!cancelled && result) setState(result);
+      } catch {
+        /* keep the last known state */
+      }
+    };
+    void poll();
+    const timer = setInterval(poll, 8_000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [reference, phone]);
+
+  if (!state) return null;
+
+  const assigned = state.status !== "pending";
+  const message = assigned
+    ? state.worker_name
+      ? `Cleaner assigned! ${state.worker_name} is on the way`
+      : "Cleaner assigned! Your cleaner is on the way"
+    : state.exhausted
+      ? "All our cleaners are currently busy, we'll notify you shortly"
+      : "Finding a cleaner near you…";
+
+  return (
+    <div
+      className={`flex items-center gap-3 rounded-3xl border p-5 shadow-card ${
+        assigned ? "border-mint/40 bg-mint/10" : "border-border bg-card"
+      }`}
+      aria-live="polite"
+    >
+      {assigned ? (
+        <UserCheck className="size-6 shrink-0 text-primary" />
+      ) : (
+        <Loader2 className="size-6 shrink-0 animate-spin text-primary" />
+      )}
+      <p className="text-sm font-semibold text-foreground">{message}</p>
     </div>
   );
 }
