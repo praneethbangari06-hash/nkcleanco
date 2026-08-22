@@ -187,3 +187,13 @@ export function prettyDate(iso: string) {
     year: "numeric",
   });
 }
+
+const REF_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+export function newReference() {
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  let out = "";
+  for (const byte of bytes) out += REF_ALPHABET[byte % REF_ALPHABET.length];
+  return `CC-${out}`;
+}
