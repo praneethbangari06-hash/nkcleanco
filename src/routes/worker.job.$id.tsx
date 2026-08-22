@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
   Check,
@@ -11,14 +11,16 @@ import {
   Play,
   User,
 } from "lucide-react";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { WorkerShell } from "@/components/worker/WorkerShell";
 import { Button } from "@/components/ui/button";
-import { getService, prettyDate, slotLabel } from "@/lib/nkcleanco";
-import { JOB_STAGES, NEXT_ACTION, useWorkerToken } from "@/lib/worker-client";
-import { advanceJobStatus, workerJob } from "@/lib/worker.functions";
+import { AREA_COORDS, getService, haversineKm, prettyDate, slotLabel } from "@/lib/nkcleanco";
+import { JOB_STAGES, NEXT_ACTION, requestGeolocation, useWorkerToken } from "@/lib/worker-client";
+import { advanceJobStatus, updateWorkerLocation, workerJob } from "@/lib/worker.functions";
+
+const LiveTrackingMap = lazy(() => import("@/components/tracking/LiveTrackingMap"));
 
 export const Route = createFileRoute("/worker/job/$id")({
   ssr: false,
@@ -43,6 +45,30 @@ function WorkerJobPage() {
   const token = useWorkerToken();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [roadKm, setRoadKm] = useState<number | null>(null);
+
+  // Read this device's GPS every 15s so the map + distance stay live.
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    const ping = async () => {
+      const pos = await requestGeolocation();
+      if (cancelled || !pos) return;
+      setMyPos(pos);
+      try {
+        await updateWorkerLocation({ data: { token, lat: pos.lat, lng: pos.lng } });
+      } catch {
+        /* keep showing the local position */
+      }
+    };
+    void ping();
+    const timer = setInterval(ping, 15_000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [token]);
 
   useEffect(() => {
     if (token === null) navigate({ to: "/worker/login", replace: true });
@@ -99,6 +125,12 @@ function WorkerJobPage() {
   const action = NEXT_ACTION[booking.status];
   const currentIndex = JOB_STAGES.findIndex((s) => s.status === booking.status);
   const ActionIcon = action ? ACTION_ICON[action.next] : CheckCircle2;
+  const customerPoint = AREA_COORDS[booking.area] ?? null;
+  const straightKm = customerPoint && myPos ? haversineKm(customerPoint, myPos) : null;
+  const distance = roadKm ?? straightKm;
+  const stageLabel =
+    JOB_STAGES.find((s) => s.status === booking.status)?.label ??
+    booking.status.replace("_", " ");
 
   return (
     <WorkerShell token={token} subtitle="Active job">
@@ -147,6 +179,45 @@ function WorkerJobPage() {
         </a>
       </section>
 
+      {customerPoint && booking.status !== "completed" && (
+        <section className="mt-4 rounded-3xl border border-border bg-card p-5">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Live route
+          </p>
+          <div className="mt-3">
+            {myPos ? (
+              <ClientOnly fallback={<MapSkeleton />}>
+                <Suspense fallback={<MapSkeleton />}>
+                  <LiveTrackingMap
+                    customer={customerPoint}
+                    worker={myPos}
+                    customerLabel="Customer address"
+                    workerLabel="You"
+                    onRouteDistance={setRoadKm}
+                  />
+                </Suspense>
+              </ClientOnly>
+            ) : (
+              <div className="flex h-[260px] items-center justify-center rounded-2xl border border-border bg-muted/40 text-sm font-bold text-muted-foreground sm:h-[300px]">
+                <Loader2 className="mr-2 size-4 animate-spin" /> Getting your location…
+              </div>
+            )}
+          </div>
+          <dl className="mt-4 grid gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-muted-foreground">Distance remaining</dt>
+              <dd className="font-extrabold">
+                {distance != null ? `${distance} km` : "Updating…"}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-muted-foreground">Status</dt>
+              <dd className="font-extrabold text-primary">{stageLabel}</dd>
+            </div>
+          </dl>
+        </section>
+      )}
+
       <section className="mt-4 rounded-3xl border border-border bg-card p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Job progress
@@ -194,4 +265,8 @@ function WorkerJobPage() {
       )}
     </WorkerShell>
   );
+}
+
+function MapSkeleton() {
+  return <div className="h-[260px] w-full animate-pulse rounded-2xl bg-muted sm:h-[300px]" />;
 }
