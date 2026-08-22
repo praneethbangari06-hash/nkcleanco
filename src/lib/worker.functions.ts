@@ -59,11 +59,12 @@ export const setWorkerOnline = createServerFn({ method: "POST" })
     const { requireWorker } = await import("./worker.server");
     const worker = await requireWorker(data.token);
 
-    const hasCoords = data.lat != null && data.lng != null;
     const patch = {
       is_online: data.isOnline,
       status: data.isOnline ? "available" : "offline",
-      ...(hasCoords ? { current_lat: data.lat, current_lng: data.lng } : {}),
+      ...(data.lat != null && data.lng != null
+        ? { current_lat: data.lat, current_lng: data.lng }
+        : {}),
     };
 
     const { error } = await supabaseAdmin.from("workers").update(patch).eq("id", worker.id);
