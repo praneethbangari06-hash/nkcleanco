@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CleanConnect — Home Cleaning in Hyderabad" },
+      { title: "NK CleanCo — Home Cleaning in Hyderabad" },
       {
         name: "description",
         content:
           "Verified, trained home cleaning professionals in Narsingi, Kokapet and Kanapur, Hyderabad.",
       },
-      { name: "author", content: "CleanConnect" },
+      { name: "author", content: "NK CleanCo" },
       { name: "theme-color", content: "#f3fafc" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

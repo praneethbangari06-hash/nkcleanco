@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { STATUS_META, useBookings, useUpdateBookingStatus, type BookingStatus } from "@/lib/admin";
-import { SERVICE_AREAS, inr, prettyDate, slotLabel } from "@/lib/cleanconnect";
+import { SERVICE_AREAS, inr, prettyDate, slotLabel } from "@/lib/nkcleanco";
 
 const STATUSES: BookingStatus[] = ["pending", "assigned", "completed", "cancelled"];
 

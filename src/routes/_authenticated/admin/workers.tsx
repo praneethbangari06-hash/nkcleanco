@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HardHat } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/workers")({
-  head: () => ({ meta: [{ title: "Workers — CleanConnect Admin" }] }),
+  head: () => ({ meta: [{ title: "Workers — NK CleanCo Admin" }] }),
   component: WorkersPage,
 });
 

@@ -4,10 +4,10 @@ import { ArrowRight, CalendarDays, CheckCircle2, Clock, IndianRupee } from "luci
 import { BookingsTable } from "@/components/admin/BookingsTable";
 import { Button } from "@/components/ui/button";
 import { midpointRevenue, useBookings } from "@/lib/admin";
-import { inr, todayIso } from "@/lib/cleanconnect";
+import { inr, todayIso } from "@/lib/nkcleanco";
 
 export const Route = createFileRoute("/_authenticated/admin/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — CleanConnect Admin" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — NK CleanCo Admin" }] }),
   component: DashboardPage,
 });
 

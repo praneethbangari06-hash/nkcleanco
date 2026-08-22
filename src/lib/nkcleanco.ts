@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const BRAND = {
-  name: "CleanConnect",
+  name: "NK CleanCo",
   tagline: "Home cleaning, done right",
   phone: "+91 98765 43210",
-  email: "hello@cleanconnect.in",
+  email: "hello@nkcleanco.in",
   whatsapp: "919876543210",
 };
 
@@ -169,7 +169,7 @@ export interface ConfirmedBooking {
   price_max: number;
 }
 
-export const CONFIRMATION_KEY = "cleanconnect:last-booking";
+export const CONFIRMATION_KEY = "nkcleanco:last-booking";
 
 export function todayIso() {
   const now = new Date();
@@ -195,5 +195,5 @@ export function newReference() {
   crypto.getRandomValues(bytes);
   let out = "";
   for (const byte of bytes) out += REF_ALPHABET[byte % REF_ALPHABET.length];
-  return `CC-${out}`;
+  return `NK-${out}`;
 }

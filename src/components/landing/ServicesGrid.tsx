@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { SERVICES, inr, type ServiceId } from "@/lib/cleanconnect";
+import { SERVICES, inr, type ServiceId } from "@/lib/nkcleanco";
 
 const ICONS: Record<ServiceId, LucideIcon> = {
   home: Home,

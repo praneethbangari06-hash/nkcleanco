@@ -5,7 +5,7 @@ import { ServicesGrid } from "@/components/landing/ServicesGrid";
 import { WhyUs } from "@/components/landing/WhyUs";
 import { PageHeading, PageShell } from "@/components/site/PageShell";
 
-const title = "Cleaning Services & Prices — CleanConnect Hyderabad";
+const title = "Cleaning Services & Prices — NK CleanCo Hyderabad";
 const description =
   "Home cleaning from ₹899, deep cleaning from ₹2,999, bathrooms from ₹599, kitchens from ₹999, sofa & carpet from ₹799 and office cleaning from ₹1,999.";
 

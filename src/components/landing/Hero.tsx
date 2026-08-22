@@ -3,7 +3,7 @@ import { ArrowRight, BadgeCheck, CalendarClock, MapPin, Star, Users } from "luci
 
 import heroImage from "@/assets/hero-cleaning.jpg";
 import { Button } from "@/components/ui/button";
-import { SERVICE_AREAS } from "@/lib/cleanconnect";
+import { SERVICE_AREAS } from "@/lib/nkcleanco";
 
 const TRUST = [
   { icon: BadgeCheck, label: "Verified Cleaners" },
@@ -83,7 +83,7 @@ export function Hero() {
           <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-lifted">
             <img
               src={heroImage}
-              alt="CleanConnect professional cleaning a bright living room in Hyderabad"
+              alt="NK CleanCo professional cleaning a bright living room in Hyderabad"
               width={1408}
               height={1200}
               className="h-full w-full object-cover"

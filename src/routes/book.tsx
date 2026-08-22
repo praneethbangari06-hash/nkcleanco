@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { PageShell } from "@/components/site/PageShell";
 
-const title = "Book a Cleaning — CleanConnect Hyderabad";
+const title = "Book a Cleaning — NK CleanCo Hyderabad";
 const description =
   "Book home, deep, bathroom, kitchen, sofa or office cleaning in Narsingi, Kokapet or Kanapur in under a minute. Confirmation call within 30 minutes.";
 

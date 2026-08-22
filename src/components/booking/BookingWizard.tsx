@@ -41,7 +41,7 @@ import {
   todayIso,
   type BookingInput,
   type ServiceId,
-} from "@/lib/cleanconnect";
+} from "@/lib/nkcleanco";
 
 const ICONS: Record<ServiceId, LucideIcon> = {
   home: Home,

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, PhoneCall } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { BRAND } from "@/lib/cleanconnect";
+import { BRAND } from "@/lib/nkcleanco";
 
 export function CtaBand() {
   return (

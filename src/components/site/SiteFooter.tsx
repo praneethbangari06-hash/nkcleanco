@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
 
-import { BRAND, SERVICES, SERVICE_AREAS } from "@/lib/cleanconnect";
+import { BRAND, SERVICES, SERVICE_AREAS } from "@/lib/nkcleanco";
 import { BrandMark } from "./SiteHeader";
 
 export function SiteFooter() {
