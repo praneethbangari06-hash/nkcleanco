@@ -28,8 +28,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
-import { requestAutoAssignment } from "@/lib/booking.functions";
+import { createBooking, requestAutoAssignment } from "@/lib/booking.functions";
+
 import { geocodeAddress, reverseGeocode } from "@/lib/geocode.functions";
 import {
   AREA_COORDS,
