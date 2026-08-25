@@ -218,13 +218,14 @@ export function BookingWizard({ initialService }: { initialService?: string | un
 
     };
 
-    const { error } = await supabase.from("bookings").insert(record);
+    const result = await createBooking({ data: record }).catch(() => null);
     setSubmitting(false);
 
-    if (error) {
+    if (!result || result.ok === false) {
       toast.error("We couldn't save your booking. Please try again or call us.");
       return;
     }
+
 
     // Kick off automatic assignment to the nearest online cleaner.
     void requestAutoAssignment({
