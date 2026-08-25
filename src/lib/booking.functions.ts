@@ -6,6 +6,38 @@ const lookupSchema = z.object({
   phone: z.string().trim().regex(/^[6-9]\d{9}$/),
 });
 
+const createSchema = z.object({
+  reference: z.string().trim().min(4).max(24),
+  customer_name: z.string().trim().min(2).max(80),
+  phone: z.string().trim().regex(/^[6-9]\d{9}$/),
+  address: z.string().trim().min(3).max(300),
+  area: z.enum(["Narsingi", "Kokapet", "Kanapur"]),
+  service_type: z.string().trim().min(2).max(80),
+  booking_date: z.string().trim().min(8).max(10),
+  time_slot: z.string().trim().min(2).max(40),
+  notes: z.string().trim().max(500).nullable().optional(),
+  price_min: z.number().int().min(0).max(1000000),
+  price_max: z.number().int().min(0).max(1000000),
+  customer_lat: z.number().min(-90).max(90).nullable().optional(),
+  customer_lng: z.number().min(-180).max(180).nullable().optional(),
+});
+
+/** Creates a booking server-side so the browser never calls the database host directly. */
+export const createBooking = createServerFn({ method: "POST" })
+  .inputValidator((data) => createSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("bookings").insert({
+      ...data,
+      notes: data.notes ?? null,
+      customer_lat: data.customer_lat ?? null,
+      customer_lng: data.customer_lng ?? null,
+    });
+    if (error) return { ok: false as const, message: error.message };
+    return { ok: true as const };
+  });
+
+
 /** Kicks off auto-assignment right after a booking is created. */
 export const requestAutoAssignment = createServerFn({ method: "POST" })
   .inputValidator((data) => lookupSchema.parse(data))
