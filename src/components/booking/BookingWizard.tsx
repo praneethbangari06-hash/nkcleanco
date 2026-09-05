@@ -78,6 +78,39 @@ export function BookingWizard({ initialService }: { initialService?: string | un
   const [submitting, setSubmitting] = useState(false);
   const [locating, setLocating] = useState(false);
 
+  /** AI shortcut on step 1: free-text request → prefilled service, date and slot. */
+  const [aiText, setAiText] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNote, setAiNote] = useState("");
+
+  const runAiFill = async () => {
+    const text = aiText.trim();
+    if (text.length < 3) return;
+    setAiBusy(true);
+    setAiNote("");
+    try {
+      const result = await parseBookingRequest({ data: { text, today: todayIso() } });
+      setDraft((prev) => ({
+        ...prev,
+        ...(result.serviceType ? { serviceType: result.serviceType as ServiceId } : {}),
+        ...(result.date ? { date: result.date } : {}),
+        ...(result.slot ? { slot: result.slot as BookingInput["slot"] } : {}),
+      }));
+      setErrors({});
+      setStep(0);
+      if (result.complete) {
+        setAiNote("Filled in below — please review and adjust if needed.");
+      } else {
+        setAiNote("Couldn't catch everything — please check the fields below.");
+      }
+    } catch {
+      setAiNote("Couldn't catch everything — please check the fields below.");
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
+
   /** Exact coordinates captured from GPS or the map pin (wins over typed text). */
   const [point, setPoint] = useState<Point | null>(null);
   const [source, setSource] = useState<"gps" | "map" | null>(null);
