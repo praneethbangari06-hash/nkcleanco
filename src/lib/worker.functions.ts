@@ -16,11 +16,19 @@ export const workerLogin = createServerFn({ method: "POST" })
 
     const { data: worker } = await supabaseAdmin
       .from("workers")
-      .select("id, name, phone, is_online, is_active, status, password_hash")
+      .select("id, name, phone, is_online, is_active, status")
       .eq("phone", data.phone)
       .maybeSingle();
 
-    if (!worker || !(await verifyPassword(data.password, worker.password_hash))) {
+    const { data: creds } = worker
+      ? await supabaseAdmin
+          .from("cleaner_credentials")
+          .select("password_hash")
+          .eq("worker_id", worker.id)
+          .maybeSingle()
+      : { data: null };
+
+    if (!worker || !creds || !(await verifyPassword(data.password, creds.password_hash))) {
       throw new Error("Phone number or password is incorrect.");
     }
     if (worker.is_active === false) {
