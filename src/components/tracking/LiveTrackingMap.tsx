@@ -214,7 +214,9 @@ export default function LiveTrackingMap({
         "relative h-[260px] w-full overflow-hidden rounded-2xl border border-border sm:h-[300px]"
       }
     >
-      <div ref={holder} className="absolute inset-0" />
+      {/* maplibre-gl.css forces .maplibregl-map to position:relative, which cancels
+          absolute/inset-0 — size the holder explicitly instead. */}
+      <div ref={holder} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
       <p className="pointer-events-none absolute bottom-1 right-1 z-10 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
         OpenFreeMap © OpenMapTiles Data from OpenStreetMap
       </p>
