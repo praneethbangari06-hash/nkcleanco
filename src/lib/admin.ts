@@ -20,6 +20,10 @@ export interface BookingRow {
   price_max: number;
   status: BookingStatus;
   created_at: string;
+  before_photo_path?: string | null;
+  after_photo_path?: string | null;
+  photo_check_result?: string | null;
+  photo_check_reason?: string | null;
 }
 
 export const STATUS_META: Record<BookingStatus, { label: string; className: string }> = {
