@@ -291,21 +291,40 @@ function WorkerJobPage() {
         </div>
       )}
 
+      {isFinalStep && (
+        <CompletionPhotos
+          before={beforePhoto}
+          after={afterPhoto}
+          onBefore={setBeforePhoto}
+          onAfter={setAfterPhoto}
+          disabled={finish.isPending}
+        />
+      )}
+
       {action ? (
-        <Button
-          variant="hero"
-          size="xl"
-          className="mt-5 h-16 w-full text-base"
-          disabled={advance.isPending}
-          onClick={() => advance.mutate(action.next)}
-        >
-          {advance.isPending ? (
-            <Loader2 className="size-5 animate-spin" />
-          ) : (
-            <ActionIcon className="size-6" />
+        <>
+          <Button
+            variant="hero"
+            size="xl"
+            className="mt-5 h-16 w-full text-base"
+            disabled={isFinalStep ? finish.isPending || !photosReady : advance.isPending}
+            onClick={() =>
+              isFinalStep ? finish.mutate() : advance.mutate(action.next)
+            }
+          >
+            {(isFinalStep ? finish.isPending : advance.isPending) ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <ActionIcon className="size-6" />
+            )}
+            {isFinalStep && finish.isPending ? "Checking photos…" : action.label}
+          </Button>
+          {isFinalStep && !photosReady && (
+            <p className="mt-2 text-center text-xs font-bold text-muted-foreground">
+              Add both photos above to finish this job.
+            </p>
           )}
-          {action.label}
-        </Button>
+        </>
       ) : (
         <p className="mt-5 rounded-2xl bg-success/10 px-4 py-4 text-center text-sm font-bold text-success">
           This job is {booking.status.replace("_", " ")}.
