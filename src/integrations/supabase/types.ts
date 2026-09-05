@@ -203,6 +203,14 @@ export type Database = {
         Returns: boolean
       }
       rotate_stale_offers: { Args: never; Returns: number }
+      worker_score_parts: {
+        Args: { _worker_id: string }
+        Returns: {
+          acceptance_score: number
+          load_score: number
+          rating_score: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "user"

@@ -74,7 +74,7 @@ const tooltipStyle = {
 
 type SortKey = keyof Pick<
   WorkerPerformance,
-  "name" | "jobsCompleted" | "revenue" | "avgRating" | "acceptanceRate"
+  "name" | "jobsCompleted" | "revenue" | "avgRating" | "acceptanceRate" | "matchScore"
 >;
 
 function DashboardPage() {
@@ -152,6 +152,7 @@ function DashboardPage() {
     { key: "revenue", label: "Revenue", numeric: true },
     { key: "avgRating", label: "Avg rating", numeric: true },
     { key: "acceptanceRate", label: "Acceptance", numeric: true },
+    { key: "matchScore", label: "Match score", numeric: true },
   ];
 
   return (
@@ -385,6 +386,14 @@ function DashboardPage() {
                 <td className="px-4 py-3 font-semibold">
                   {worker.acceptanceRate != null ? `${worker.acceptanceRate}%` : "—"}
                 </td>
+                <td className="px-4 py-3 font-semibold">
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-bold text-primary"
+                    title={`Match score used to pick a cleaner for new jobs. Rating 25% · live jobs 15% (${worker.activeJobs} active) · acceptance 10% · distance 50% (varies per booking, shown neutral here).`}
+                  >
+                    {worker.matchScore.toFixed(2)}
+                  </span>
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold ${
@@ -405,7 +414,7 @@ function DashboardPage() {
             ))}
             {sortedWorkers.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No cleaners on the roster yet.
                 </td>
               </tr>
