@@ -12,10 +12,6 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  vite: {
-    // maplibre-gl loads its own web worker as a sibling module; Vite's dep pre-bundling
-    // rewrites the entry but not the worker file, so the worker 404s and the map stays blank.
-    optimizeDeps: { exclude: ["maplibre-gl"] },
-  },
 });
+
 
