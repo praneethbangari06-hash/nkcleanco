@@ -13,7 +13,9 @@ interface Props {
   className?: string;
 }
 
-const OSM_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const CARTO_TILES =
+  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const TEAL = "#0f766e";
 
 export default function LiveTrackingMap({
   customer,
@@ -42,20 +44,27 @@ export default function LiveTrackingMap({
     });
     mapRef.current = map;
 
-    L.tileLayer(OSM_TILES, {
-      maxZoom: 19,
-      attribution: "© OpenStreetMap contributors",
+    L.tileLayer(CARTO_TILES, {
+      maxZoom: 20,
+      subdomains: "abcd",
+      attribution: "© OpenStreetMap contributors © CARTO",
     }).addTo(map);
 
-    L.circleMarker([customer.lat, customer.lng], {
-      radius: 8,
-      color: "#ffffff",
-      weight: 3,
-      fillColor: "#0f766e",
-      fillOpacity: 1,
+    L.marker([customer.lat, customer.lng], {
+      icon: L.divIcon({
+        className: "nk-dest-marker",
+        html:
+          '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' +
+          '<path fill="#1e293b" stroke="#ffffff" stroke-width="1.4" d="M12 1.8c-4 0-7.2 3.2-7.2 7.2 0 5.3 7.2 13.2 7.2 13.2s7.2-7.9 7.2-13.2c0-4-3.2-7.2-7.2-7.2z"/>' +
+          '<circle cx="12" cy="9" r="2.6" fill="#ffffff"/></svg>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 29],
+      }),
+      title: customerLabel,
     })
       .addTo(map)
       .bindTooltip(customerLabel);
+
 
     return () => {
       map.remove();
