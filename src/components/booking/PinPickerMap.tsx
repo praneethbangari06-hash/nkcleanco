@@ -10,7 +10,7 @@ interface Props {
   className?: string;
 }
 
-const CARTO_TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const OSM_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 /** Small interactive map with a draggable pin used to set exact booking coordinates. */
 export default function PinPickerMap({ center, value, onChange, className }: Props) {
@@ -33,10 +33,9 @@ export default function PinPickerMap({ center, value, onChange, className }: Pro
     });
     mapRef.current = map;
 
-    L.tileLayer(CARTO_TILES, {
-      maxZoom: 20,
-      subdomains: "abcd",
-      attribution: "© OpenStreetMap contributors, © CARTO",
+    L.tileLayer(OSM_TILES, {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
     const marker = L.marker([start.lat, start.lng], {

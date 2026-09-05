@@ -13,8 +13,7 @@ interface Props {
   className?: string;
 }
 
-const CARTO_TILES =
-  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const OSM_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 export default function LiveTrackingMap({
   customer,
@@ -43,10 +42,9 @@ export default function LiveTrackingMap({
     });
     mapRef.current = map;
 
-    L.tileLayer(CARTO_TILES, {
-      maxZoom: 20,
-      subdomains: "abcd",
-      attribution: "© OpenStreetMap contributors, © CARTO",
+    L.tileLayer(OSM_TILES, {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
     L.circleMarker([customer.lat, customer.lng], {
