@@ -34,6 +34,17 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const loginRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!loginOpen) return;
+    const onDown = (event: MouseEvent) => {
+      if (!loginRef.current?.contains(event.target as Node)) setLoginOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [loginOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl">
@@ -58,11 +69,43 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <a
             href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
-            className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-foreground transition-smooth hover:text-primary sm:flex"
+            className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-foreground transition-smooth hover:text-primary lg:flex"
           >
             <Phone className="size-4 text-primary" />
             {BRAND.phone}
           </a>
+
+          <div ref={loginRef} className="relative hidden md:block">
+            <button
+              type="button"
+              onClick={() => setLoginOpen((v) => !v)}
+              aria-expanded={loginOpen}
+              aria-haspopup="menu"
+              className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition-smooth hover:text-primary"
+            >
+              Login
+              <ChevronDown className={`size-3.5 transition-smooth ${loginOpen ? "rotate-180" : ""}`} />
+            </button>
+            {loginOpen && (
+              <div
+                role="menu"
+                className="animate-fade-in absolute right-0 top-full z-50 mt-2 w-40 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lifted"
+              >
+                {LOGINS.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    role="menuitem"
+                    onClick={() => setLoginOpen(false)}
+                    className="block px-3.5 py-2 text-xs font-semibold text-muted-foreground transition-smooth hover:bg-primary-soft hover:text-primary"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           <Button asChild variant="hero" size="sm" className="h-10 px-5">
             <Link to="/book">Book now</Link>
           </Button>
@@ -97,9 +140,25 @@ export function SiteHeader() {
             >
               Call {BRAND.phone}
             </a>
+            <span className="mt-1 border-t border-border px-3 pt-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Team access
+            </span>
+            {LOGINS.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+                className="rounded-xl px-3 py-2.5 text-xs font-semibold text-muted-foreground transition-smooth hover:bg-primary-soft hover:text-primary"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
       )}
+    </header>
+  );
+
     </header>
   );
 }
