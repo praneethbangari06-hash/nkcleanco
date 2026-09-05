@@ -30,7 +30,6 @@ export const Route = createFileRoute("/admin/login")({
 
 function AdminLogin() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -51,20 +50,6 @@ function AdminLogin() {
     setErrors({});
     setBusy(true);
 
-    if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
-        email: parsed.data.email,
-        password: parsed.data.password,
-        options: { emailRedirectTo: `${window.location.origin}/admin/dashboard` },
-      });
-      setBusy(false);
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-      toast.success("Account created. Signing you in…");
-    }
-
     const { error } = await supabase.auth.signInWithPassword({
       email: parsed.data.email,
       password: parsed.data.password,
@@ -83,6 +68,7 @@ function AdminLogin() {
     toast.success("Welcome back");
     navigate({ to: "/admin/dashboard" });
   };
+
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-hero">
@@ -104,14 +90,11 @@ function AdminLogin() {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
             <ShieldCheck className="size-5 text-primary-foreground" />
           </span>
-          <h1 className="mt-5 text-2xl font-extrabold">
-            {mode === "signin" ? "Team login" : "Create admin account"}
-          </h1>
+          <h1 className="mt-5 text-2xl font-extrabold">Team login</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {mode === "signin"
-              ? "Sign in to manage bookings and assign cleaners."
-              : "Set up the first admin account for your NK CleanCo dashboard."}
+            Sign in to manage bookings and assign cleaners.
           </p>
+
 
           <form onSubmit={submit} className="mt-7 space-y-4">
             <div>
@@ -141,7 +124,7 @@ function AdminLogin() {
               <Input
                 id="password"
                 type="password"
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                autoComplete="current-password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -154,22 +137,13 @@ function AdminLogin() {
 
             <Button type="submit" variant="hero" size="xl" className="w-full" disabled={busy}>
               {busy && <Loader2 className="size-5 animate-spin" />}
-              {mode === "signin" ? "Sign in" : "Create account & sign in"}
+              Sign in
             </Button>
           </form>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMode((m) => (m === "signin" ? "signup" : "signin"));
-              setErrors({});
-            }}
-            className="mt-5 w-full text-center text-sm font-semibold text-primary transition-smooth hover:underline"
-          >
-            {mode === "signin"
-              ? "First time here? Create the admin account"
-              : "Already have an account? Sign in"}
-          </button>
+          <p className="mt-5 text-center text-xs text-muted-foreground">
+            Accounts are created by an existing NK CleanCo admin.
+          </p>
         </div>
       </div>
     </div>
