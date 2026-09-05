@@ -30,7 +30,6 @@ export const Route = createFileRoute("/admin/login")({
 
 function AdminLogin() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -51,20 +50,6 @@ function AdminLogin() {
     setErrors({});
     setBusy(true);
 
-    if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
-        email: parsed.data.email,
-        password: parsed.data.password,
-        options: { emailRedirectTo: `${window.location.origin}/admin/dashboard` },
-      });
-      setBusy(false);
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-      toast.success("Account created. Signing you in…");
-    }
-
     const { error } = await supabase.auth.signInWithPassword({
       email: parsed.data.email,
       password: parsed.data.password,
@@ -83,6 +68,7 @@ function AdminLogin() {
     toast.success("Welcome back");
     navigate({ to: "/admin/dashboard" });
   };
+
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-hero">
