@@ -101,6 +101,28 @@ function WorkerJobPage() {
     onError: (error: Error) => toast.error(error.message || "Could not update the job status."),
   });
 
+  const finish = useMutation({
+    mutationFn: () =>
+      completeJobWithPhotos({
+        data: {
+          token: token as string,
+          bookingId: id,
+          before: beforePhoto as string,
+          after: afterPhoto as string,
+        },
+      }),
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ["worker"] });
+      if (result.result === "flagged") {
+        toast.success("Job completed. The office will take a quick look at your photos.");
+      } else {
+        toast.success("Photos verified. Job completed — great work!");
+      }
+      navigate({ to: "/worker/dashboard", replace: true });
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not complete this job."),
+  });
+
   if (!token || job.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface">
