@@ -51,6 +51,8 @@ function WorkerJobPage() {
   const queryClient = useQueryClient();
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
   const [roadKm, setRoadKm] = useState<number | null>(null);
+  const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
+  const [afterPhoto, setAfterPhoto] = useState<string | null>(null);
 
   // Read this device's GPS every 15s so the map + distance stay live.
   useEffect(() => {
