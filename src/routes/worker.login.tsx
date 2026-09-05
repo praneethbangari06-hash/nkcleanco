@@ -46,8 +46,17 @@ function WorkerLogin() {
       const result = await workerLogin({ data: { phone: phone.trim(), password } });
       storeWorkerToken(result.token);
       navigate({ to: "/worker/dashboard", replace: true });
-    } catch {
-      setError("Phone number or password is incorrect.");
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "";
+      if (/deactivated/i.test(raw)) {
+        setError("This account has been deactivated. Please contact the office.");
+      } else if (/incorrect/i.test(raw)) {
+        setError("Phone number or password is incorrect.");
+      } else {
+        setError(
+          "We couldn't reach the server just now. Check your internet connection and try again.",
+        );
+      }
     } finally {
       setBusy(false);
     }
