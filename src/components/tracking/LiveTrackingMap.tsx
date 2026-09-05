@@ -122,9 +122,10 @@ export default function LiveTrackingMap({
           routeLine.current.setLatLngs(latlngs);
         } else {
           routeLine.current = L.polyline(latlngs, {
-            color: "#0f766e",
-            weight: 5,
-            opacity: 0.75,
+            color: TEAL,
+            weight: 4,
+            opacity: 0.9,
+
             lineJoin: "round",
           }).addTo(mapRef.current);
         }

@@ -310,11 +310,19 @@
   }
 }
 
+/* Fixed destination pin for the customer address. */
+.nk-dest-marker {
+  background: none;
+  border: 0;
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 0.3));
+}
+
 /* Live "cleaner is moving" dot used by the customer tracking map. */
 .nk-live-marker {
   background: none;
   border: 0;
 }
+
 
 .nk-live-dot {
   position: absolute;
