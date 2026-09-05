@@ -1,6 +1,6 @@
-import "maplibre-gl/dist/maplibre-gl.css";
+import "leaflet/dist/leaflet.css";
 
-import * as maplibregl from "maplibre-gl";
+import L from "leaflet";
 import { useEffect, useRef } from "react";
 
 interface Props {
@@ -13,40 +13,27 @@ interface Props {
   className?: string;
 }
 
-const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+const OSM_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TEAL = "#0f766e";
 
-const EMPTY_LINE = {
-  type: "FeatureCollection" as const,
-  features: [] as GeoJSON.Feature[],
-};
+const destIcon = () =>
+  L.divIcon({
+    className: "nk-dest-marker",
+    html:
+      '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' +
+      '<path fill="#1e293b" stroke="#ffffff" stroke-width="1.4" d="M12 1.8c-4 0-7.2 3.2-7.2 7.2 0 5.3 7.2 13.2 7.2 13.2s7.2-7.9 7.2-13.2c0-4-3.2-7.2-7.2-7.2z"/>' +
+      '<circle cx="12" cy="9" r="2.6" fill="#ffffff"/></svg>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 29],
+  });
 
-function lineFeature(coords: [number, number][]): GeoJSON.FeatureCollection {
-  if (coords.length < 2) return EMPTY_LINE;
-  return {
-    type: "FeatureCollection",
-    features: [
-      { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } },
-    ],
-  };
-}
-
-function destPinEl(): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "nk-dest-marker";
-  el.innerHTML =
-    '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' +
-    '<path fill="#1e293b" stroke="#ffffff" stroke-width="1.4" d="M12 1.8c-4 0-7.2 3.2-7.2 7.2 0 5.3 7.2 13.2 7.2 13.2s7.2-7.9 7.2-13.2c0-4-3.2-7.2-7.2-7.2z"/>' +
-    '<circle cx="12" cy="9" r="2.6" fill="#ffffff"/></svg>';
-  return el;
-}
-
-function liveDotEl(): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "nk-live-marker";
-  el.innerHTML = '<span class="nk-live-dot"></span>';
-  return el;
-}
+const liveIcon = () =>
+  L.divIcon({
+    className: "nk-live-marker",
+    html: '<span class="nk-live-dot"></span>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
 
 export default function LiveTrackingMap({
   customer,
@@ -57,11 +44,9 @@ export default function LiveTrackingMap({
   className,
 }: Props) {
   const holder = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const readyRef = useRef(false);
-  const workerMarker = useRef<maplibregl.Marker | null>(null);
-  const animRef = useRef<number | null>(null);
-  const travelled = useRef<[number, number][]>([]);
+  const mapRef = useRef<L.Map | null>(null);
+  const workerMarker = useRef<L.Marker | null>(null);
+  const routeLine = useRef<L.Polyline | null>(null);
   const didFit = useRef(false);
   const distanceCb = useRef(onRouteDistance);
   distanceCb.current = onRouteDistance;
@@ -69,55 +54,32 @@ export default function LiveTrackingMap({
   useEffect(() => {
     if (!holder.current || mapRef.current) return;
 
-    const map = new maplibregl.Map({
-      container: holder.current,
-      style: STYLE_URL,
-      center: [customer.lng, customer.lat],
+    const map = L.map(holder.current, {
+      center: [customer.lat, customer.lng],
       zoom: 13,
-      attributionControl: false,
+      zoomControl: true,
+      attributionControl: true,
+      scrollWheelZoom: false,
     });
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.scrollZoom.disable();
 
-    new maplibregl.Marker({ element: destPinEl(), anchor: "bottom" })
-      .setLngLat([customer.lng, customer.lat])
-      .setPopup(new maplibregl.Popup({ offset: 18 }).setText(customerLabel))
+    L.tileLayer(OSM_TILES, {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    L.marker([customer.lat, customer.lng], { icon: destIcon() })
+      .bindPopup(customerLabel)
       .addTo(map);
 
-    map.on("load", () => {
-      map.addSource("route-remaining", { type: "geojson", data: EMPTY_LINE });
-      map.addSource("route-covered", { type: "geojson", data: EMPTY_LINE });
-
-      map.addLayer({
-        id: "route-remaining-line",
-        type: "line",
-        source: "route-remaining",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": TEAL,
-          "line-width": 4,
-          "line-opacity": 0.4,
-          "line-dasharray": [1.6, 1.6],
-        },
-      });
-      map.addLayer({
-        id: "route-covered-line",
-        type: "line",
-        source: "route-covered",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": TEAL, "line-width": 4, "line-opacity": 0.95 },
-      });
-      readyRef.current = true;
-    });
+    // Leaflet needs a size recalculation once the container has laid out.
+    setTimeout(() => map.invalidateSize(), 0);
 
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
       map.remove();
       mapRef.current = null;
-      readyRef.current = false;
       workerMarker.current = null;
-      travelled.current = [];
+      routeLine.current = null;
       didFit.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,51 +91,21 @@ export default function LiveTrackingMap({
     if (!map || !worker) return;
     let cancelled = false;
 
-    const target: [number, number] = [worker.lng, worker.lat];
+    const target: [number, number] = [worker.lat, worker.lng];
 
     if (!workerMarker.current) {
-      workerMarker.current = new maplibregl.Marker({ element: liveDotEl() })
-        .setLngLat(target)
-        .setPopup(new maplibregl.Popup({ offset: 14 }).setText(workerLabel))
+      workerMarker.current = L.marker(target, { icon: liveIcon() })
+        .bindPopup(workerLabel)
         .addTo(map);
     } else {
-      // Smoothly interpolate from the previous position over ~1s.
-      const from = workerMarker.current.getLngLat();
-      const start = performance.now();
-      const duration = 1000;
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-      const step = (now: number) => {
-        const t = Math.min(1, (now - start) / duration);
-        const eased = t * (2 - t);
-        workerMarker.current?.setLngLat([
-          from.lng + (target[0] - from.lng) * eased,
-          from.lat + (target[1] - from.lat) * eased,
-        ]);
-        if (t < 1) animRef.current = requestAnimationFrame(step);
-      };
-      animRef.current = requestAnimationFrame(step);
+      workerMarker.current.setLatLng(target);
     }
-
-    // Track the path already covered so progress is visible.
-    const last = travelled.current[travelled.current.length - 1];
-    if (!last || last[0] !== target[0] || last[1] !== target[1]) {
-      travelled.current = [...travelled.current, target].slice(-500);
-    }
-    // The style may still be loading when the first GPS fix / route arrives —
-    // buffer the line data and flush it once the sources exist.
-    const setData = (id: string, data: GeoJSON.FeatureCollection) => {
-      const apply = () => {
-        const src = mapRef.current?.getSource(id) as maplibregl.GeoJSONSource | undefined;
-        src?.setData(data);
-      };
-      if (readyRef.current) apply();
-      else map.once("load", apply);
-    };
-    setData("route-covered", lineFeature(travelled.current));
 
     if (!didFit.current) {
-      const bounds = new maplibregl.LngLatBounds(target, [customer.lng, customer.lat]);
-      map.fitBounds(bounds, { padding: 56, maxZoom: 16, duration: 0 });
+      map.fitBounds(L.latLngBounds([target, [customer.lat, customer.lng]]), {
+        padding: [40, 40],
+        maxZoom: 16,
+      });
       didFit.current = true;
     }
 
@@ -191,14 +123,24 @@ export default function LiveTrackingMap({
         const route = json.routes?.[0];
         if (cancelled || !route || !mapRef.current) return;
 
-        const coords = route.geometry.coordinates;
-        setData("route-remaining", lineFeature(coords));
-        setData("route-covered", lineFeature(travelled.current));
-        const bounds = coords.reduce(
-          (b, c) => b.extend(c),
-          new maplibregl.LngLatBounds(coords[0], coords[0]),
+        const latlngs = route.geometry.coordinates.map(
+          ([lng, lat]) => [lat, lng] as [number, number],
         );
-        mapRef.current.fitBounds(bounds, { padding: 48, maxZoom: 16 });
+        if (routeLine.current) {
+          routeLine.current.setLatLngs(latlngs);
+        } else {
+          routeLine.current = L.polyline(latlngs, {
+            color: TEAL,
+            weight: 4,
+            opacity: 0.9,
+            lineCap: "round",
+            lineJoin: "round",
+          }).addTo(mapRef.current);
+        }
+        mapRef.current.fitBounds(routeLine.current.getBounds(), {
+          padding: [36, 36],
+          maxZoom: 16,
+        });
         distanceCb.current?.(Math.round((route.distance / 1000) * 10) / 10);
       } catch {
         if (!cancelled) distanceCb.current?.(null);
@@ -218,12 +160,7 @@ export default function LiveTrackingMap({
         "relative h-[260px] w-full overflow-hidden rounded-2xl border border-border sm:h-[300px]"
       }
     >
-      {/* maplibre-gl.css forces .maplibregl-map to position:relative, which cancels
-          absolute/inset-0 — size the holder explicitly instead. */}
       <div ref={holder} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
-      <p className="pointer-events-none absolute bottom-1 right-1 z-10 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-        OpenFreeMap © OpenMapTiles Data from OpenStreetMap
-      </p>
     </div>
   );
 }
