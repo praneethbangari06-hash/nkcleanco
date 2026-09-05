@@ -246,7 +246,35 @@ export function BookingWizard({ initialService }: { initialService?: string | un
             title="What do you need cleaned?"
             hint="Pick one service — you can add notes later."
           >
+            <div className="rounded-2xl border border-primary/30 bg-primary-soft/50 p-4">
+              <Label htmlFor="ai-request" className="flex items-center gap-2 text-sm font-bold text-ink">
+                <Wand2 className="size-4 text-primary" />
+                Or just tell us what you need
+              </Label>
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <Input
+                  id="ai-request"
+                  value={aiText}
+                  onChange={(e) => setAiText(e.target.value)}
+                  placeholder="e.g. deep clean my 2BHK this Saturday morning"
+                  className="bg-card"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={runAiFill}
+                  disabled={aiBusy || aiText.trim().length < 3}
+                  className="shrink-0"
+                >
+                  {aiBusy ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                  {aiBusy ? "Understanding your request..." : "Fill form"}
+                </Button>
+              </div>
+              {aiNote && <p className="mt-2 text-xs font-semibold text-primary">{aiNote}</p>}
+            </div>
+
             <div className="grid gap-3 sm:grid-cols-2">
+
               {SERVICES.map((item) => {
                 const Icon = ICONS[item.id];
                 const active = draft.serviceType === item.id;
