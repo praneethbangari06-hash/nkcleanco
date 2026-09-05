@@ -18,14 +18,16 @@ export function BookingPhotoBadge({ booking }: { booking: BookingRow }) {
   const [open, setOpen] = useState(false);
   const hasPhotos = Boolean(booking.before_photo_path && booking.after_photo_path);
   const flagged = booking.photo_check_result === "flagged";
-  if (!hasPhotos) return null;
 
   const links = useQuery({
     queryKey: ["admin", "booking-photos", booking.id],
-    enabled: open,
+    enabled: open && hasPhotos,
     staleTime: 1000 * 60 * 20,
     queryFn: () => bookingPhotoLinks({ data: { bookingId: booking.id } }),
   });
+
+  if (!hasPhotos) return null;
+
 
   return (
     <>
