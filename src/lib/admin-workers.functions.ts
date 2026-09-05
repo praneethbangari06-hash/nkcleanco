@@ -74,7 +74,6 @@ export const createWorker = createServerFn({ method: "POST" })
       .insert({
         name: data.name,
         phone: data.phone,
-        password_hash: await hashPassword(data.password),
         is_online: false,
         is_active: true,
         status: "offline",
@@ -82,6 +81,14 @@ export const createWorker = createServerFn({ method: "POST" })
       .select("id, name, phone")
       .single();
     if (error) throw new Error(error.message);
+
+    const { error: credError } = await supabaseAdmin
+      .from("cleaner_credentials")
+      .insert({ worker_id: created.id, password_hash: await hashPassword(data.password) });
+    if (credError) {
+      await supabaseAdmin.from("workers").delete().eq("id", created.id);
+      throw new Error(credError.message);
+    }
     return { ok: true as const, worker: created };
   });
 
@@ -108,7 +115,6 @@ export const updateWorker = createServerFn({ method: "POST" })
       is_active?: boolean;
       is_online?: boolean;
       status?: string;
-      password_hash?: string;
     } = {};
     if (data.name) patch.name = data.name;
     if (data.phone) {
@@ -130,7 +136,13 @@ export const updateWorker = createServerFn({ method: "POST" })
     }
     if (data.password) {
       const { hashPassword } = await import("./worker.server");
-      patch.password_hash = await hashPassword(data.password);
+      const { error: credError } = await supabaseAdmin
+        .from("cleaner_credentials")
+        .upsert(
+          { worker_id: data.id, password_hash: await hashPassword(data.password) },
+          { onConflict: "worker_id" },
+        );
+      if (credError) throw new Error(credError.message);
     }
     if (Object.keys(patch).length === 0) return { ok: true };
 
