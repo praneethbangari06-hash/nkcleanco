@@ -144,9 +144,6 @@ function AdminLogin() {
           <p className="mt-5 text-center text-xs text-muted-foreground">
             Accounts are created by an existing NK CleanCo admin.
           </p>
-
-              : "Already have an account? Sign in"}
-          </button>
         </div>
       </div>
     </div>
