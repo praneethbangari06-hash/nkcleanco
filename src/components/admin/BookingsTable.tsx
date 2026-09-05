@@ -196,6 +196,7 @@ export function BookingsTable({ limit }: { limit?: number | undefined }) {
                   <div className="min-w-0">
                     <p className="truncate font-bold text-ink">{booking.customer_name}</p>
                     <p className="text-xs text-muted-foreground">{booking.reference}</p>
+                    <BookingPhotoBadge booking={booking} />
                   </div>
                   <StatusPill status={booking.status} />
                 </div>
