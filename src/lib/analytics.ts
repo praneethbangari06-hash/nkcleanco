@@ -35,6 +35,8 @@ export interface WorkerPerformance {
   revenue: number;
   avgRating: number | null;
   acceptanceRate: number | null;
+  activeJobs: number;
+  matchScore: number;
 }
 
 export interface ActivityItem {
@@ -126,6 +128,21 @@ export function buildAnalytics(bookings: AnalyticsBooking[], workers: AnalyticsW
         (b.offered_worker_ids ?? []).includes(worker.id),
       ).length;
       const offered = acceptedCount + declinedCount;
+      const activeJobs = mine.filter((b) =>
+        ["assigned", "arrived", "in_progress"].includes(b.status),
+      ).length;
+      // Mirrors the backend match score: distance 50% (shown as neutral 0.5
+      // here since it depends on the booking), rating 25%, load 15%,
+      // acceptance 10%.
+      const ratingScore = myRated.length
+        ? myRated.reduce((s2, b) => s2 + (b.rating ?? 0), 0) / myRated.length / 5
+        : 0.8;
+      const loadScore = activeJobs === 0 ? 1 : activeJobs === 1 ? 0.5 : 0;
+      const acceptanceScore = offered ? acceptedCount / offered : 0.8;
+      const matchScore =
+        Math.round(
+          (0.5 * 0.5 + 0.25 * ratingScore + 0.15 * loadScore + 0.1 * acceptanceScore) * 1000,
+        ) / 1000;
       return {
         id: worker.id,
         name: worker.name,
@@ -137,6 +154,8 @@ export function buildAnalytics(bookings: AnalyticsBooking[], workers: AnalyticsW
           ? Math.round((myRated.reduce((s, b) => s + (b.rating ?? 0), 0) / myRated.length) * 10) / 10
           : null,
         acceptanceRate: offered ? Math.round((acceptedCount / offered) * 100) : null,
+        activeJobs,
+        matchScore,
       };
     })
     .sort((a, b) => b.jobsCompleted - a.jobsCompleted);
