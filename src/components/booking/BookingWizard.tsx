@@ -19,6 +19,7 @@ import {
   Sofa,
   Sparkles,
   User,
+  Wand2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { lazy, Suspense, useMemo, useState } from "react";
@@ -28,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { parseBookingRequest } from "@/lib/ai-booking.functions";
 import { createBooking, requestAutoAssignment } from "@/lib/booking.functions";
 
 import { geocodeAddress, reverseGeocode } from "@/lib/geocode.functions";
