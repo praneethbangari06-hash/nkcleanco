@@ -124,7 +124,7 @@ function AdminLogin() {
               <Input
                 id="password"
                 type="password"
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                autoComplete="current-password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -137,20 +137,14 @@ function AdminLogin() {
 
             <Button type="submit" variant="hero" size="xl" className="w-full" disabled={busy}>
               {busy && <Loader2 className="size-5 animate-spin" />}
-              {mode === "signin" ? "Sign in" : "Create account & sign in"}
+              Sign in
             </Button>
           </form>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMode((m) => (m === "signin" ? "signup" : "signin"));
-              setErrors({});
-            }}
-            className="mt-5 w-full text-center text-sm font-semibold text-primary transition-smooth hover:underline"
-          >
-            {mode === "signin"
-              ? "First time here? Create the admin account"
+          <p className="mt-5 text-center text-xs text-muted-foreground">
+            Accounts are created by an existing NK CleanCo admin.
+          </p>
+
               : "Already have an account? Sign in"}
           </button>
         </div>
