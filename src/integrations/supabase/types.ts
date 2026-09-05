@@ -109,6 +109,35 @@ export type Database = {
           },
         ]
       }
+      cleaner_credentials: {
+        Row: {
+          created_at: string
+          password_hash: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string
+          password_hash: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          created_at?: string
+          password_hash?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaner_credentials_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: true
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           booking_id: string
@@ -172,7 +201,6 @@ export type Database = {
           is_online: boolean
           last_location_update: string | null
           name: string
-          password_hash: string
           phone: string
           status: string
         }
@@ -185,7 +213,6 @@ export type Database = {
           is_online?: boolean
           last_location_update?: string | null
           name: string
-          password_hash: string
           phone: string
           status?: string
         }
@@ -198,7 +225,6 @@ export type Database = {
           is_online?: boolean
           last_location_update?: string | null
           name?: string
-          password_hash?: string
           phone?: string
           status?: string
         }
