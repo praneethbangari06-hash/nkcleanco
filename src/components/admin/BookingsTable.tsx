@@ -1,6 +1,7 @@
 import { CalendarX2, Loader2, Phone, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { BookingPhotoBadge } from "@/components/admin/BookingPhotos";
 import { Input } from "@/components/ui/input";
 import { STATUS_META, useBookings, useUpdateBookingStatus, type BookingStatus } from "@/lib/admin";
 import { SERVICE_AREAS, inr, prettyDate, slotLabel } from "@/lib/nkcleanco";
