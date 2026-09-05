@@ -90,14 +90,11 @@ function AdminLogin() {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
             <ShieldCheck className="size-5 text-primary-foreground" />
           </span>
-          <h1 className="mt-5 text-2xl font-extrabold">
-            {mode === "signin" ? "Team login" : "Create admin account"}
-          </h1>
+          <h1 className="mt-5 text-2xl font-extrabold">Team login</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {mode === "signin"
-              ? "Sign in to manage bookings and assign cleaners."
-              : "Set up the first admin account for your NK CleanCo dashboard."}
+            Sign in to manage bookings and assign cleaners.
           </p>
+
 
           <form onSubmit={submit} className="mt-7 space-y-4">
             <div>
