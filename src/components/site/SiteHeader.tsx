@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, Phone, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, Menu, Phone, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/lib/nkcleanco";
@@ -10,6 +10,12 @@ const NAV = [
   { label: "How it works", to: "/how-it-works" },
   { label: "Areas", to: "/service-areas" },
 ];
+
+const LOGINS = [
+  { label: "Staff login", to: "/worker/login" },
+  { label: "Admin login", to: "/admin/login" },
+];
+
 
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
