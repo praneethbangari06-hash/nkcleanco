@@ -27,7 +27,7 @@ function PhotoSlot({
   hint: string;
   value: string | null;
   onChange: (dataUrl: string) => void;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -97,7 +97,7 @@ export function CompletionPhotos({
   after: string | null;
   onBefore: (dataUrl: string) => void;
   onAfter: (dataUrl: string) => void;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }) {
   return (
     <section className="mt-4 rounded-3xl border border-border bg-card p-5">
