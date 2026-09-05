@@ -319,9 +319,13 @@
 
 /* Live "cleaner is moving" dot used by the customer tracking map. */
 .nk-live-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
   background: none;
   border: 0;
 }
+
 
 
 .nk-live-dot {
