@@ -159,11 +159,17 @@ export default function LiveTrackingMap({
     if (!last || last[0] !== target[0] || last[1] !== target[1]) {
       travelled.current = [...travelled.current, target].slice(-500);
     }
+    // The style may still be loading when the first GPS fix / route arrives —
+    // buffer the line data and flush it once the sources exist.
     const setData = (id: string, data: GeoJSON.FeatureCollection) => {
-      const src = map.getSource(id) as maplibregl.GeoJSONSource | undefined;
-      src?.setData(data);
+      const apply = () => {
+        const src = mapRef.current?.getSource(id) as maplibregl.GeoJSONSource | undefined;
+        src?.setData(data);
+      };
+      if (readyRef.current) apply();
+      else map.once("load", apply);
     };
-    if (readyRef.current) setData("route-covered", lineFeature(travelled.current));
+    setData("route-covered", lineFeature(travelled.current));
 
     if (!didFit.current) {
       const bounds = new maplibregl.LngLatBounds(target, [customer.lng, customer.lat]);
@@ -186,10 +192,8 @@ export default function LiveTrackingMap({
         if (cancelled || !route || !mapRef.current) return;
 
         const coords = route.geometry.coordinates;
-        if (readyRef.current) {
-          setData("route-remaining", lineFeature(coords));
-          setData("route-covered", lineFeature(travelled.current));
-        }
+        setData("route-remaining", lineFeature(coords));
+        setData("route-covered", lineFeature(travelled.current));
         const bounds = coords.reduce(
           (b, c) => b.extend(c),
           new maplibregl.LngLatBounds(coords[0], coords[0]),
