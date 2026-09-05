@@ -15,9 +15,11 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { BookingChat } from "@/components/chat/BookingChat";
+import { CompletionPhotos } from "@/components/worker/CompletionPhotos";
 import { WorkerShell } from "@/components/worker/WorkerShell";
 import { fetchWorkerMessages, sendWorkerMessage } from "@/lib/chat.functions";
 import { Button } from "@/components/ui/button";
+import { completeJobWithPhotos } from "@/lib/job-photos.functions";
 import { AREA_COORDS, getService, haversineKm, prettyDate, slotLabel } from "@/lib/nkcleanco";
 import { JOB_STAGES, NEXT_ACTION, requestGeolocation, useWorkerToken } from "@/lib/worker-client";
 import { advanceJobStatus, updateWorkerLocation, workerJob } from "@/lib/worker.functions";
@@ -49,6 +51,8 @@ function WorkerJobPage() {
   const queryClient = useQueryClient();
   const [myPos, setMyPos] = useState<{ lat: number; lng: number } | null>(null);
   const [roadKm, setRoadKm] = useState<number | null>(null);
+  const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
+  const [afterPhoto, setAfterPhoto] = useState<string | null>(null);
 
   // Read this device's GPS every 15s so the map + distance stay live.
   useEffect(() => {
@@ -97,6 +101,28 @@ function WorkerJobPage() {
     onError: (error: Error) => toast.error(error.message || "Could not update the job status."),
   });
 
+  const finish = useMutation({
+    mutationFn: () =>
+      completeJobWithPhotos({
+        data: {
+          token: token as string,
+          bookingId: id,
+          before: beforePhoto as string,
+          after: afterPhoto as string,
+        },
+      }),
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ["worker"] });
+      if (result.result === "flagged") {
+        toast.success("Job completed. The office will take a quick look at your photos.");
+      } else {
+        toast.success("Photos verified. Job completed — great work!");
+      }
+      navigate({ to: "/worker/dashboard", replace: true });
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not complete this job."),
+  });
+
   if (!token || job.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface">
@@ -125,6 +151,8 @@ function WorkerJobPage() {
 
   const booking = job.data;
   const action = NEXT_ACTION[booking.status];
+  const isFinalStep = action?.next === "completed";
+  const photosReady = Boolean(beforePhoto && afterPhoto);
   const currentIndex = JOB_STAGES.findIndex((s) => s.status === booking.status);
   const ActionIcon = action ? ACTION_ICON[action.next] : CheckCircle2;
   const customerPoint =
@@ -265,21 +293,40 @@ function WorkerJobPage() {
         </div>
       )}
 
+      {isFinalStep && (
+        <CompletionPhotos
+          before={beforePhoto}
+          after={afterPhoto}
+          onBefore={setBeforePhoto}
+          onAfter={setAfterPhoto}
+          disabled={finish.isPending}
+        />
+      )}
+
       {action ? (
-        <Button
-          variant="hero"
-          size="xl"
-          className="mt-5 h-16 w-full text-base"
-          disabled={advance.isPending}
-          onClick={() => advance.mutate(action.next)}
-        >
-          {advance.isPending ? (
-            <Loader2 className="size-5 animate-spin" />
-          ) : (
-            <ActionIcon className="size-6" />
+        <>
+          <Button
+            variant="hero"
+            size="xl"
+            className="mt-5 h-16 w-full text-base"
+            disabled={isFinalStep ? finish.isPending || !photosReady : advance.isPending}
+            onClick={() =>
+              isFinalStep ? finish.mutate() : advance.mutate(action.next)
+            }
+          >
+            {(isFinalStep ? finish.isPending : advance.isPending) ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <ActionIcon className="size-6" />
+            )}
+            {isFinalStep && finish.isPending ? "Checking photos…" : action.label}
+          </Button>
+          {isFinalStep && !photosReady && (
+            <p className="mt-2 text-center text-xs font-bold text-muted-foreground">
+              Add both photos above to finish this job.
+            </p>
           )}
-          {action.label}
-        </Button>
+        </>
       ) : (
         <p className="mt-5 rounded-2xl bg-success/10 px-4 py-4 text-center text-sm font-bold text-success">
           This job is {booking.status.replace("_", " ")}.

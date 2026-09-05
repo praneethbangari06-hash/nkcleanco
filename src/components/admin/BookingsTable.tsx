@@ -1,6 +1,7 @@
 import { CalendarX2, Loader2, Phone, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { BookingPhotoBadge } from "@/components/admin/BookingPhotos";
 import { Input } from "@/components/ui/input";
 import { STATUS_META, useBookings, useUpdateBookingStatus, type BookingStatus } from "@/lib/admin";
 import { SERVICE_AREAS, inr, prettyDate, slotLabel } from "@/lib/nkcleanco";
@@ -139,6 +140,7 @@ export function BookingsTable({ limit }: { limit?: number | undefined }) {
                     <td className="px-4 py-3.5">
                       <p className="font-semibold text-ink">{booking.customer_name}</p>
                       <p className="text-xs text-muted-foreground">{booking.reference}</p>
+                      <BookingPhotoBadge booking={booking} />
                     </td>
                     <td className="px-4 py-3.5">
                       <a
@@ -196,6 +198,7 @@ export function BookingsTable({ limit }: { limit?: number | undefined }) {
                   <div className="min-w-0">
                     <p className="truncate font-bold text-ink">{booking.customer_name}</p>
                     <p className="text-xs text-muted-foreground">{booking.reference}</p>
+                    <BookingPhotoBadge booking={booking} />
                   </div>
                   <StatusPill status={booking.status} />
                 </div>

@@ -17,8 +17,10 @@ export type Database = {
       bookings: {
         Row: {
           address: string
+          after_photo_path: string | null
           area: string
           assigned_worker_id: string | null
+          before_photo_path: string | null
           booking_date: string
           created_at: string
           customer_lat: number | null
@@ -30,6 +32,9 @@ export type Database = {
           offered_at: string | null
           offered_worker_ids: string[]
           phone: string
+          photo_check_reason: string | null
+          photo_check_result: string | null
+          photo_checked_at: string | null
           price_max: number
           price_min: number
           rating: number | null
@@ -40,8 +45,10 @@ export type Database = {
         }
         Insert: {
           address: string
+          after_photo_path?: string | null
           area: string
           assigned_worker_id?: string | null
+          before_photo_path?: string | null
           booking_date: string
           created_at?: string
           customer_lat?: number | null
@@ -53,6 +60,9 @@ export type Database = {
           offered_at?: string | null
           offered_worker_ids?: string[]
           phone: string
+          photo_check_reason?: string | null
+          photo_check_result?: string | null
+          photo_checked_at?: string | null
           price_max?: number
           price_min?: number
           rating?: number | null
@@ -63,8 +73,10 @@ export type Database = {
         }
         Update: {
           address?: string
+          after_photo_path?: string | null
           area?: string
           assigned_worker_id?: string | null
+          before_photo_path?: string | null
           booking_date?: string
           created_at?: string
           customer_lat?: number | null
@@ -76,6 +88,9 @@ export type Database = {
           offered_at?: string | null
           offered_worker_ids?: string[]
           phone?: string
+          photo_check_reason?: string | null
+          photo_check_result?: string | null
+          photo_checked_at?: string | null
           price_max?: number
           price_min?: number
           rating?: number | null
