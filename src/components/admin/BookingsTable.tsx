@@ -139,6 +139,7 @@ export function BookingsTable({ limit }: { limit?: number | undefined }) {
                     <td className="px-4 py-3.5">
                       <p className="font-semibold text-ink">{booking.customer_name}</p>
                       <p className="text-xs text-muted-foreground">{booking.reference}</p>
+                      <BookingPhotoBadge booking={booking} />
                     </td>
                     <td className="px-4 py-3.5">
                       <a
