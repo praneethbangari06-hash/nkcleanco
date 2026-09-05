@@ -151,6 +151,8 @@ function WorkerJobPage() {
 
   const booking = job.data;
   const action = NEXT_ACTION[booking.status];
+  const isFinalStep = action?.next === "completed";
+  const photosReady = Boolean(beforePhoto && afterPhoto);
   const currentIndex = JOB_STAGES.findIndex((s) => s.status === booking.status);
   const ActionIcon = action ? ACTION_ICON[action.next] : CheckCircle2;
   const customerPoint =
